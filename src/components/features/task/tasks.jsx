@@ -1,3 +1,4 @@
+import { LayoutList } from "lucide-react";
 import {
   HiOutlineChevronDoubleRight,
   HiOutlineCalendar,
@@ -7,6 +8,11 @@ import {
 import { NavLink } from "react-router-dom";
 
 const tasks = [
+  {
+    title: "Dashboard",
+    path: "/dashboard",
+    icon: LayoutList,
+  },
   {
     title: "Upcoming",
     path: "/upcoming",
@@ -36,7 +42,7 @@ function Tasks() {
     <>
       {/* TASKS */}
       <div>
-        <h2 className="mb-5 text-sm font-bold tracking-wider text-gray-500 uppercase">
+        <h2 className="mb-5 border-t border-gray-200 mt-8 pt-6 text-sm font-bold tracking-wider text-gray-500 uppercase">
           Tasks
         </h2>
         <div className="space-y-2">
@@ -44,8 +50,7 @@ function Tasks() {
             <NavLink
               to={task.path}
               className={({ isActive }) =>
-                `flex items-center justify-between rounded-lg px-4 py-3 ${
-                  isActive ? "bg-gray-200 text-black" : "hover:bg-gray-200"
+                `flex items-center justify-between rounded-lg px-4 py-3 ${isActive ? "bg-gray-200 text-black" : "hover:bg-gray-200"
                 }`
               }
             >

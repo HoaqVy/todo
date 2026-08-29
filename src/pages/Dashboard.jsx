@@ -6,7 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 function Dashboard() {
   return (
     <div>
-      <div className="h-screen flex flex-col">
+      <div className="h-full flex flex-col">
         <Header />
 
         {/* Main Content */}

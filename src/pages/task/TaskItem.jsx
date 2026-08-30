@@ -5,9 +5,6 @@ import {
 } from "lucide-react";
 
 function TaskItem({ tasks = [] }) {
-
-    console.log("REAL TaskItem:", tasks);
-
     const getStatusIcon = (status) => {
         switch (status) {
             case "Completed":
@@ -94,10 +91,10 @@ function TaskItem({ tasks = [] }) {
                             {/* Priority */}
                             <span
                                 className={`rounded-full px-2.5 py-1 text-xs font-medium ${task.priority === "High"
-                                        ? "bg-red-50 text-red-600"
-                                        : task.priority === "Medium"
-                                            ? "bg-yellow-50 text-yellow-600"
-                                            : "bg-gray-100 text-gray-600"
+                                    ? "bg-red-50 text-red-600"
+                                    : task.priority === "Medium"
+                                        ? "bg-yellow-50 text-yellow-600"
+                                        : "bg-gray-100 text-gray-600"
                                     }`}
                             >
                                 {task.priority}

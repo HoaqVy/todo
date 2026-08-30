@@ -83,9 +83,14 @@ function DashboardFeature() {
 
   // Filter tasks
   const filteredTasks = tasks.filter((task) => {
-    const matchSearch = task.title
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const keyword = search.trim().toLowerCase();
+
+    const matchSearch =
+      task.title.toLowerCase().includes(keyword) ||
+      task.owner.toLowerCase().includes(keyword) ||
+      task.priority.toLowerCase().includes(keyword) ||
+      task.status.toLowerCase().includes(keyword);
+
     const matchOwner = !owner || task.owner === owner;
     const matchStatus = !status || task.status === status;
     const matchPriority = !priority || task.priority === priority;

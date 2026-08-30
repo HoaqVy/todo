@@ -16,8 +16,58 @@ const statusConfig = {
         color: "bg-rose-500"
     }
 }
+
 function TaskOverview({ tasks = [] }) {
-    const [period, setPeriod] = useState("This week")
+    const [period, setPeriod] = useState("This Week")
+
+    // Filter task theo periods 
+    const periodTasks = useMemo(() => {
+        const today = new Date()
+
+        return tasks.filter((task) => {
+            if (!task.dueDate) return false
+
+            const dueDate = new Date(task.dueDate)
+
+            if (period === "This week") {
+                const startOfWeek = new Date(today)
+                const day = today.getDay()
+
+                startOfWeek.setDate(
+                    today.getDate() - day
+                );
+                startOfWeek.setHours(0, 0, 0, 0)
+
+                const endOfWeek = new Date(startOfWeek)
+                endOfWeek.setDate(
+                    startOfWeek.getDate() + 6
+                )
+                endOfWeek.setHours(23, 59, 59, 999);
+
+                return (
+                    dueDate >= startOfWeek &&
+                    dueDate <= endOfWeek
+                )
+            }
+
+            if (period === "This month") {
+                return (
+                    dueDate.getMonth() === today.getMonth() &&
+                    dueDate.getFullYear() === today.getFullYear()
+                )
+            }
+
+            if (period === "This year") {
+                return (
+                    dueDate.getFullYear() === today.getFullYear()
+                )
+            }
+            return true;
+        })
+    }, [tasks, period])
+
+
+    // Tính OverviewData
     const overviewData = useMemo(() => {
         const completed = tasks.filter(
             (task) => task.status === "Completed"
@@ -31,7 +81,7 @@ function TaskOverview({ tasks = [] }) {
             (task) => task.status === "Todo"
         ).length;
 
-      const overdue = tasks.filter(isOverdue).length;
+        const overdue = tasks.filter(isOverdue).length;
 
         return [
             {
@@ -64,7 +114,18 @@ function TaskOverview({ tasks = [] }) {
                     <h3 className="mb-5 text-lg font-bold tracking-wide text-gray">Task Overview</h3>
                     <p className="mt-1 text-sm text-gray-500">Overview of your tasks</p>
                 </div>
-                <Filter value={period} onChange={setPeriod} className="w-40" />
+                <Filter
+                    value={period}
+                    onChange={setPeriod}
+                    options={[
+                        "Today",
+                        "This Week",
+                        "This month",
+                        "This year",
+                    ]}
+                    placeholder="Period"
+                    className="w-40"
+                />
             </div>
 
             {/* Chart */}
@@ -92,6 +153,10 @@ function TaskOverview({ tasks = [] }) {
                         </span>
                     </div>
                 ))}
+            </div>
+            {/* Total */}
+            <div className="mt-6 border-t border-gray-100 pt-4 text-sm text-gray-500">
+                {periodTasks.length} tasks in {period.toLowerCase()}
             </div>
         </div>
     );

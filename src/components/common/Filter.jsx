@@ -1,16 +1,16 @@
 import BoxSeaction from "./BoxSection";
 
 
-const periods = [
+const defaultPeriods = [
     "Today", "This Week", "This month", "This year"
 ];
 
 function Filter({
-    value, onChange, className = ""
+    value, onChange, className = "", options = defaultPeriods
 }) {
     return (
         <BoxSeaction
-            items={periods}
+            items={options}
             value={value}
             onValueChange={onChange}
             placeholder="Period"

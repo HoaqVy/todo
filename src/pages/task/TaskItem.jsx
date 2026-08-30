@@ -1,41 +1,113 @@
-const defaultTasks = [
-    {
-        id: 1,
-        title: 'Design Homepage',
-        assignee: 'Hoang Vy',
-        date: 'Today',
-        status: 'Completed',
-    },
-    {
-        id: 2,
-        title: 'Implement Login',
-        assignee: 'Nguyen Van A',
-        date: 'Today',
-        status: 'In Progress',
-    },
-    {
-        id: 3,
-        title: 'Create Dashboard',
-        assignee: 'Hoang Vy',
-        date: 'Yesterday',
-        status: 'Todo',
-    },
-]
+import {
+    CheckCircle2,
+    Circle,
+    Clock,
+} from "lucide-react";
 
-export default function TaskItem({ tasks = defaultTasks }) {
+function TaskItem({ tasks = [] }) {
+
+    console.log("REAL TaskItem:", tasks);
+
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case "Completed":
+                return (
+                    <CheckCircle2
+                        size={18}
+                        className="text-emerald-500"
+                    />
+                );
+
+            case "In Progress":
+                return (
+                    <Clock
+                        size={18}
+                        className="text-blue-500"
+                    />
+                );
+
+            case "Todo":
+            default:
+                return (
+                    <Circle
+                        size={18}
+                        className="text-gray-400"
+                    />
+                );
+        }
+    };
+
     return (
-        <div className="w-full max-w-prose  rounded-xl border border-gray-200 bg-white  shadow-sm p-6  font-mono text-gray-500  sm:grid-cols-2 ">
+        <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
+
             {/* Header */}
-            <h3 className="mb-5 text-lg font-bold tracking-wide text-gray-500"> Recent Task</h3>
-            <div className="space-y-1">
-                {tasks.map((task, index) => (
-                    <div key={task.id || index} className="relative border border-gray-200 bg-white- p-3 text-sm text-gray">
-                        <div className="font-semibold text-gray">{task.title} </div>
-                        <div className="mt-1 text-xs text-gray"> {task.owner} <span className="mt-1">•</span> {task.date} </div>
-                        <div className="mt-2 text-right text-xs font-medium text-gray">{task.status}</div>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h3 className="text-lg font-bold text-gray-900">
+                        Recent Tasks
+                    </h3>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        Your latest tasks
+                    </p>
+                </div>
+
+                <span className="text-sm text-gray-500">
+                    {tasks.length} tasks
+                </span>
+            </div>
+
+            {/* Task list */}
+            <div className="mt-6 space-y-3">
+                {tasks.length === 0 ? (
+                    <div className="py-8 text-center text-sm text-gray-500">
+                        No tasks found
                     </div>
-                ))}
+                ) : (
+                    tasks.map((task) => (
+                        <div
+                            key={task.id}
+                            className="flex items-center gap-3 rounded-lg border border-gray-100 p-3 transition hover:bg-gray-50"
+                        >
+                            {/* Status */}
+                            {getStatusIcon(task.status)}
+
+                            {/* Task information */}
+                            <div className="min-w-0 flex-1">
+                                <h4 className="truncate text-sm font-medium text-gray-900">
+                                    {task.title}
+                                </h4>
+
+                                <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
+                                    <span>
+                                        {task.owner}
+                                    </span>
+
+                                    <span>•</span>
+
+                                    <span className="text-red-500">
+                                        Due: {task.dueDate}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Priority */}
+                            <span
+                                className={`rounded-full px-2.5 py-1 text-xs font-medium ${task.priority === "High"
+                                        ? "bg-red-50 text-red-600"
+                                        : task.priority === "Medium"
+                                            ? "bg-yellow-50 text-yellow-600"
+                                            : "bg-gray-100 text-gray-600"
+                                    }`}
+                            >
+                                {task.priority}
+                            </span>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
-    )
+    );
 }
+
+export default TaskItem;

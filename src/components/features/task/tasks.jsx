@@ -48,9 +48,12 @@ function Tasks() {
         <div className="space-y-2">
           {tasks.map((task) => (
             <NavLink
+              key={task.path}
               to={task.path}
               className={({ isActive }) =>
-                `flex items-center justify-between rounded-lg px-4 py-3 ${isActive ? "bg-gray-200 text-black" : "hover:bg-gray-200"
+                `flex items-center justify-between rounded-lg px-4 py-3 ${isActive
+                  ? "bg-gray-200 text-black"
+                  : "hover:bg-gray-200"
                 }`
               }
             >
@@ -59,9 +62,12 @@ function Tasks() {
                 <span className="font-medium">{task.title}</span>
               </div>
 
-              <span className="rounded bg-white px-2 py-1 text-xs font-semibold">
-                {task.count ? task.count : null}
-              </span>
+              {task.count && (
+
+                <span className="rounded bg-white px-2 py-1 text-xs font-semibold">
+                  {task.count ? task.count : null}
+                </span>
+              )}
             </NavLink>
           ))}
         </div>

@@ -2,10 +2,11 @@ import Search from "@/components/common/Search";
 import Button from "@/components/common/Button";
 import { CircleCheck, CirclePlus, ClipboardList, Clock, TriangleAlert } from "lucide-react";
 import TaskOverview from "@/pages/Task/TaskOverview";
-import TaskItem from "@/pages/Task/TaskItem";
+import TaskItem from "@/pages/task/TaskItem";
 import { useState } from "react";
 import BoxSeaction from "@/components/common/BoxSection";
 import DashboardCard from "@/pages/dashboard/DaskboardCard";
+import { isOverdue } from "@/pages/task/TaskUtils";
 
 
 const owners = [
@@ -33,6 +34,7 @@ const tasks = [
     owner: "Hoang Vy",
     status: "Completed",
     priority: "High",
+    dueDate: "2026-09-02",
   },
   {
     id: 2,
@@ -40,6 +42,8 @@ const tasks = [
     owner: "Nguyen Van A",
     status: "In Progress",
     priority: "Medium",
+    dueDate: "2026-08-30",
+
   },
   {
     id: 3,
@@ -47,6 +51,8 @@ const tasks = [
     owner: "Hoang Vy",
     status: "Todo",
     priority: "High",
+    dueDate: "2026-09-15",
+
   },
   {
     id: 4,
@@ -54,6 +60,8 @@ const tasks = [
     owner: "Nguyen Van B",
     status: "Completed",
     priority: "Low",
+    dueDate: "2026-02-11",
+
   },
   {
     id: 5,
@@ -61,6 +69,8 @@ const tasks = [
     owner: "Nguyen Van A",
     status: "Todo",
     priority: "Medium",
+    dueDate: "2026-08-02",
+
   },
 ];
 
@@ -91,12 +101,11 @@ function DashboardFeature() {
     (task) => task.status === "Completed"
   ).length
   const inProgressTasks = filteredTasks.filter(
-    (task) => task.status === "In Progess"
+    (task) => task.status === "In Progress"
   ).length
-  const overdueTask = filteredTasks.filter(
-    (task) => task.status === "Overdue"
-  ).length
-
+  const overdueTask = filteredTasks.filter(isOverdue).length;
+  // console.log("TaskItem tasks:", tasks);
+  // console.log("filteredTasks:", filteredTasks);
   return (
     <div>
       <div >
@@ -167,7 +176,7 @@ function DashboardFeature() {
           />
         </div>
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <TaskOverview />
+          <TaskOverview tasks={filteredTasks} />
           <TaskItem tasks={filteredTasks} />
         </div>
       </div>

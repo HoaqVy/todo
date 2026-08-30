@@ -26,6 +26,7 @@ function Report() {
                 <div className="space-y-2">
                     {report.map((report) => (
                         <NavLink
+                            key={report.path}
                             to={report.path}
                             className={({ isActive }) =>
                                 `flex items-center justify-between rounded-lg px-4 py-3 ${isActive ? "bg-gray-200 text-black" : "hover:bg-gray-200"

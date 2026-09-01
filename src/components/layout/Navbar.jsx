@@ -7,18 +7,19 @@ import UserMenu from "../features/task/userName";
 
 function Navbar() {
   return (
-    <aside className="w-80.75 h-full overflow-y-auto border-r border-gray-200 bg-[#F8F8F8] p-6">
+    <div className="h-full overflow-y-auto p-6">
       {/* Header */}
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-4xl font-bold text-black">Menu</h1>
-
+        <h1 className="text-4xl font-bold text-black">
+          Menu
+        </h1>
       </div>
       <Search />
       <Tasks />
       <Report />
       <Tags />
       <UserMenu />
-    </aside>
+    </div>
   );
 }
 

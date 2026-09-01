@@ -1,12 +1,14 @@
+
 import Search from "@/components/common/Search";
 import Button from "@/components/common/Button";
-import { CircleCheck, CirclePlus, ClipboardList, Clock, TriangleAlert } from "lucide-react";
+import { CircleCheck, CirclePlus, ClipboardList, Clock, Eraser, TriangleAlert } from "lucide-react";
 import TaskItem from "@/pages/task/TaskItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BoxSeaction from "@/components/common/BoxSection";
 import DashboardCard from "@/pages/dashboard/DaskboardCard";
 import { isOverdue } from "@/pages/task/TaskUtils";
 import TaskOverview from "@/pages/task/TaskOverview";
+import getTasks from "@/api/taskApi";
 
 
 const owners = [
@@ -27,52 +29,7 @@ const priorities = [
   "High",
 ];
 
-const tasks = [
-  {
-    id: 1,
-    title: "Design Homepage",
-    owner: "Hoang Vy",
-    status: "Completed",
-    priority: "High",
-    dueDate: "2026-09-02",
-  },
-  {
-    id: 2,
-    title: "Implement Login",
-    owner: "Nguyen Van A",
-    status: "In Progress",
-    priority: "Medium",
-    dueDate: "2026-08-30",
 
-  },
-  {
-    id: 3,
-    title: "Create Dashboard",
-    owner: "Hoang Vy",
-    status: "Todo",
-    priority: "High",
-    dueDate: "2026-09-15",
-
-  },
-  {
-    id: 4,
-    title: "Fix Responsive UI",
-    owner: "Nguyen Van B",
-    status: "Completed",
-    priority: "Low",
-    dueDate: "2026-02-11",
-
-  },
-  {
-    id: 5,
-    title: "Create API",
-    owner: "Nguyen Van A",
-    status: "Todo",
-    priority: "Medium",
-    dueDate: "2026-08-02",
-
-  },
-];
 
 function DashboardFeature() {
   // Filter
@@ -80,25 +37,30 @@ function DashboardFeature() {
   const [owner, setOwner] = useState("")
   const [status, setStatus] = useState("")
   const [priority, setPriority] = useState("")
+  const [tasks, setTasks] = useState([])
 
   // Filter tasks
   const filteredTasks = tasks.filter((task) => {
-    const keyword = search.trim().toLowerCase();
+    const keyword = search.toLowerCase().trim();
 
     const matchSearch =
       task.title.toLowerCase().includes(keyword) ||
       task.owner.toLowerCase().includes(keyword) ||
+      task.status.toLowerCase().includes(keyword) ||
       task.priority.toLowerCase().includes(keyword) ||
-      task.status.toLowerCase().includes(keyword);
+      task.dueDate.includes(keyword);
 
     const matchOwner = !owner || task.owner === owner;
     const matchStatus = !status || task.status === status;
     const matchPriority = !priority || task.priority === priority;
 
     return (
-      matchSearch && matchOwner && matchStatus && matchPriority
-    )
-  })
+      matchSearch &&
+      matchOwner &&
+      matchStatus &&
+      matchPriority
+    );
+  });
 
   // Dashboard statistics 
   const totalTasks = filteredTasks.length
@@ -111,6 +73,31 @@ function DashboardFeature() {
   const overdueTask = filteredTasks.filter(isOverdue).length;
   // console.log("TaskItem tasks:", tasks);
   // console.log("filteredTasks:", filteredTasks);
+
+  // Clear Filter
+  const handleCleanFilter = () => {
+    setSearch("");
+    setOwner("");
+    setStatus("");
+    setPriority("")
+  }
+
+  // API tasks
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const data = await getTasks()
+        setTasks(data)
+      }
+      catch (error) {
+        console.error("Failed to fetch tasks: ", error)
+      }
+    }
+    fetchTasks();
+  }, [])
+
+
+
   return (
     <div>
       <div >
@@ -122,16 +109,16 @@ function DashboardFeature() {
           <Button href="/dashboard/create" icon={CirclePlus} />
         </div>
         {/* Filter */}
-        <div className="mt-6 flex flex-1 items-center justify-start">
-          <Search className="w-60 mr-4 " value={search} onChange={setSearch} />
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Search className="w-full " value={search} onChange={setSearch} />
 
-          <div className="flex gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:col-span-1 lg:col-span-4 lg:grid-cols-4">
             <BoxSeaction
               items={owners}
               value={owner}
               onValueChange={setOwner}
               placeholder="Owners"
-              className="w-60"
+              className="w-full"
             />
 
             <BoxSeaction
@@ -139,7 +126,7 @@ function DashboardFeature() {
               value={status}
               onValueChange={setStatus}
               placeholder="Statuses"
-              className="w-60"
+              className="w-full"
             />
 
             <BoxSeaction
@@ -147,8 +134,14 @@ function DashboardFeature() {
               value={priority}
               onValueChange={setPriority}
               placeholder="Priorities"
-              className="w-60"
+              className="w-full"
             />
+
+            <button type="button" onClick={handleCleanFilter}
+              className="flex h-10 w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
+            >
+              <Eraser size={18} />
+            </button>
           </div>
         </div>
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

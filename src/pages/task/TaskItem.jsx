@@ -55,7 +55,7 @@ function TaskItem({ tasks = [] }) {
             </div>
 
             {/* Task list */}
-            <div className="mt-6 space-y-3">
+            <div className="mt-6 space-y-3 max-h-60 overflow-y-auto pr-2">
                 {tasks.length === 0 ? (
                     <div className="py-8 text-center text-sm text-gray-500">
                         No tasks found

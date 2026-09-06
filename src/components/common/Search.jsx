@@ -2,14 +2,8 @@ import { HiOutlineSearch } from "react-icons/hi";
 
 function Search({ className = "", value = "", onChange }) {
   return (
-    <div className={`relative ${className}`}>
-      {/* Search icon */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-        <HiOutlineSearch
-          size={20}
-          className="text-gray-400"
-        />
-      </div>
+    <div className={`flex h-10 items-center rounded-lg border border-gray-300 bg-white px-4 focus-within:bg-gray-400 ${className}`}>
+      <HiOutlineSearch size={20} className="shrink-0 text-gray-400" />
 
       {/* Input */}
       <input
@@ -17,9 +11,9 @@ function Search({ className = "", value = "", onChange }) {
         placeholder="Search"
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
-        className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-12 pr-4 outline-none focus:border-gray-400"
+        className="h-10 w-full rounded-lg pl-6 pr-4 outline-none focus:border-gray-400"
       />
-    </div>
+    </div >
   );
 }
 

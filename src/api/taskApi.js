@@ -1,7 +1,7 @@
 import { tasks } from "@/data/tasks";
 
 function getTasks() {
-    return tasks
+    return tasks;
 }
 
-export default getTasks
+export default getTasks;

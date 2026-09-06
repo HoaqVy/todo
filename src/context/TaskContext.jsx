@@ -1,10 +1,33 @@
-import { createContext, useState } from "react";
-import { tasks as initialTasks } from "@/data/tasks";
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
+
+import getTasks from "@/api/taskApi";
 
 const TaskContext = createContext();
 
 export function TaskProvider({ children }) {
-    const [tasks, setTasks] = useState(initialTasks);
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Get tasks from API
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const data = await getTasks();
+                setTasks(data);
+            } catch (error) {
+                console.error("Failed to fetch tasks:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTasks();
+    }, []);
 
     const addTask = (task) => {
         setTasks((prev) => [
@@ -36,6 +59,7 @@ export function TaskProvider({ children }) {
         <TaskContext.Provider
             value={{
                 tasks,
+                loading,
                 addTask,
                 updateTask,
                 deleteTask,
@@ -46,6 +70,6 @@ export function TaskProvider({ children }) {
     );
 }
 
-// export function useTasks() {
-//     return useContext(TaskContext);
-// }
+export function useTasks() {
+    return useContext(TaskContext);
+}

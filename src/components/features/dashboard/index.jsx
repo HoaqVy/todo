@@ -3,12 +3,12 @@ import Search from "@/components/common/Search";
 import Button from "@/components/common/Button";
 import { CircleCheck, CirclePlus, ClipboardList, Clock, Eraser, TriangleAlert } from "lucide-react";
 import TaskItem from "@/pages/task/TaskItem";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BoxSeaction from "@/components/common/BoxSection";
 import DashboardCard from "@/pages/dashboard/DaskboardCard";
 import { isOverdue } from "@/pages/task/TaskUtils";
 import TaskOverview from "@/pages/task/TaskOverview";
-import getTasks from "@/api/taskApi";
+import { useTasks } from "@/context/TaskContext";
 
 
 const owners = [
@@ -37,7 +37,7 @@ function DashboardFeature() {
   const [owner, setOwner] = useState("")
   const [status, setStatus] = useState("")
   const [priority, setPriority] = useState("")
-  const [tasks, setTasks] = useState([])
+  const { tasks } = useTasks();
 
   // Filter tasks
   const filteredTasks = tasks.filter((task) => {
@@ -81,22 +81,6 @@ function DashboardFeature() {
     setStatus("");
     setPriority("")
   }
-
-  // API tasks
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const data = await getTasks()
-        setTasks(data)
-      }
-      catch (error) {
-        console.error("Failed to fetch tasks: ", error)
-      }
-    }
-    fetchTasks();
-  }, [])
-
-
 
   return (
     <div>

@@ -8,7 +8,8 @@ import BoxSeaction from "@/components/common/BoxSection";
 import DashboardCard from "@/pages/dashboard/DaskboardCard";
 import { isOverdue } from "@/pages/task/TaskUtils";
 import TaskOverview from "@/pages/task/TaskOverview";
-import { useTasks } from "@/context/TaskContext";
+import { useTasks } from "@/context/useTasks";
+
 
 
 const owners = [
@@ -37,18 +38,28 @@ function DashboardFeature() {
   const [owner, setOwner] = useState("")
   const [status, setStatus] = useState("")
   const [priority, setPriority] = useState("")
-  const { tasks } = useTasks();
+  const { tasks, loading } = useTasks();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-75 items-center justify-center">
+        <p className="text-sm text-gray-500">
+          Loading tasks...
+        </p>
+      </div>
+    );
+  }
 
   // Filter tasks
   const filteredTasks = tasks.filter((task) => {
     const keyword = search.toLowerCase().trim();
 
     const matchSearch =
-      task.title.toLowerCase().includes(keyword) ||
-      task.owner.toLowerCase().includes(keyword) ||
-      task.status.toLowerCase().includes(keyword) ||
-      task.priority.toLowerCase().includes(keyword) ||
-      task.dueDate.includes(keyword);
+      task.title?.toLowerCase().includes(keyword) ||
+      task.owner?.toLowerCase().includes(keyword) ||
+      task.status?.toLowerCase().includes(keyword) ||
+      task.priority?.toLowerCase().includes(keyword) ||
+      String(task.dueDate).includes(keyword);
 
     const matchOwner = !owner || task.owner === owner;
     const matchStatus = !status || task.status === status;

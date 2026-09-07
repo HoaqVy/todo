@@ -10,6 +10,7 @@ import DashboardCreate from "./components/features/dashboard/create";
 import Team from "./pages/Team";
 import Client from "./pages/Client";
 import Layout from "./components/layout/Layout";
+import CreateTask from "./pages/task/CreateTask";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/team" element={<Team />} />
         <Route path="/client" element={<Client />} />
         <Route path="/sticky-wall" element={<StickyWall />} />
+        <Route path="/create-task" element={<CreateTask />} />
       </Route>
     </Routes>
   );

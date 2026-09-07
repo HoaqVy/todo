@@ -1,75 +1,52 @@
 import {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
+  useEffect,
+  useState,
 } from "react";
 
-import getTasks from "@/api/taskApi";
-
-const TaskContext = createContext();
+import { getTasks, createTask } from "@/api/taskApi";
+import { TaskContext } from "./TaskContext.js";
 
 export function TaskProvider({ children }) {
-    const [tasks, setTasks] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    // Get tasks from API
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                const data = await getTasks();
-                setTasks(data);
-            } catch (error) {
-                console.error("Failed to fetch tasks:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTasks();
-    }, []);
-
-    const addTask = (task) => {
-        setTasks((prev) => [
-            ...prev,
-            {
-                ...task,
-                id: Date.now(),
-            },
-        ]);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const data = await getTasks();
+        setTasks(data);
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const updateTask = (id, updatedTask) => {
-        setTasks((prev) =>
-            prev.map((task) =>
-                task.id === id
-                    ? { ...task, ...updatedTask }
-                    : task
-            )
-        );
-    };
+    fetchTasks();
+  }, []);
 
-    const deleteTask = (id) => {
-        setTasks((prev) =>
-            prev.filter((task) => task.id !== id)
-        );
-    };
+  const addTask = async (taskData) => {
+    try {
+      const newTask = await createTask(taskData);
 
-    return (
-        <TaskContext.Provider
-            value={{
-                tasks,
-                loading,
-                addTask,
-                updateTask,
-                deleteTask,
-            }}
-        >
-            {children}
-        </TaskContext.Provider>
-    );
-}
+      setTasks((prevTasks) => [newTask, ...prevTasks]);
 
-export function useTasks() {
-    return useContext(TaskContext);
+      return newTask;
+    } catch (error) {
+      console.error("Failed to create task:", error);
+      throw error;
+    }
+  };
+
+  return (
+    <TaskContext.Provider
+      value={{
+        tasks,
+        loading,
+        addTask
+      }}
+    >
+      {children}
+    </TaskContext.Provider>
+  );
 }

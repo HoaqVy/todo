@@ -1,10 +1,15 @@
-import { useState } from "react";
-import { useTasks } from "@/context/useTasks";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-function CreateTask() {
-    const { addTask } = useTasks();
-    const navigate = useNavigate()
+import { useTasks } from "@/context/useTasks";
+
+function EditTask() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const {
+        tasks = [],
+        updateTask,
+    } = useTasks();
 
     const [formData, setFormData] = useState({
         title: "",
@@ -13,6 +18,29 @@ function CreateTask() {
         priority: "Medium",
         dueDate: "",
     });
+
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        const task = tasks.find(
+            (task) => task._id === id
+        );
+
+        if (!task) {
+            setError("Task not found");
+            return;
+        }
+
+        setFormData({
+            title: task.title || "",
+            owner: task.owner || "",
+            status: task.status || "Todo",
+            priority: task.priority || "Medium",
+            dueDate: task.dueDate
+                ? task.dueDate.slice(0, 10)
+                : "",
+        });
+    }, [tasks, id]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -27,20 +55,31 @@ function CreateTask() {
         e.preventDefault();
 
         try {
-            await addTask(formData);
+            await updateTask(id, formData);
 
-            console.log("Task created successfully");
-
-            navigate("/dashboard")
+            navigate("/dashboard");
         } catch (error) {
-            console.error("Failed to create task:", error);
+            console.error(
+                "Failed to update task:",
+                error
+            );
+
+            setError("Failed to update task");
         }
     };
+
+    if (error) {
+        return (
+            <div className="mx-auto max-w-2xl">
+                <p className="text-red-500">{error}</p>
+            </div>
+        );
+    }
 
     return (
         <div className="mx-auto max-w-2xl">
             <h1 className="mb-6 text-2xl font-bold">
-                Create Task
+                Edit Task
             </h1>
 
             <form
@@ -93,9 +132,17 @@ function CreateTask() {
                         onChange={handleChange}
                         className="w-full rounded-lg border border-gray-300 px-4 py-2"
                     >
-                        <option value="Todo">Todo</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
+                        <option value="Todo">
+                            Todo
+                        </option>
+
+                        <option value="In Progress">
+                            In Progress
+                        </option>
+
+                        <option value="Completed">
+                            Completed
+                        </option>
                     </select>
                 </div>
 
@@ -111,13 +158,21 @@ function CreateTask() {
                         onChange={handleChange}
                         className="w-full rounded-lg border border-gray-300 px-4 py-2"
                     >
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
+                        <option value="Low">
+                            Low
+                        </option>
+
+                        <option value="Medium">
+                            Medium
+                        </option>
+
+                        <option value="High">
+                            High
+                        </option>
                     </select>
                 </div>
 
-                {/* Due date */}
+                {/* Due Date */}
                 <div>
                     <label className="mb-2 block text-sm font-medium">
                         Due Date
@@ -132,16 +187,28 @@ function CreateTask() {
                     />
                 </div>
 
-                {/* Submit */}
-                <button
-                    type="submit"
-                    className="rounded-lg bg-black px-5 py-2 text-white hover:bg-gray-800"
-                >
-                    Create Task
-                </button>
+                {/* Buttons */}
+                <div className="flex gap-3">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            navigate("/dashboard")
+                        }
+                        className="rounded-lg border border-gray-300 px-5 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        className="rounded-lg bg-black px-5 py-2 text-white hover:bg-gray-800"
+                    >
+                        Update Task
+                    </button>
+                </div>
             </form>
         </div>
     );
 }
 
-export default CreateTask;
+export default EditTask;

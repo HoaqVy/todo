@@ -3,13 +3,20 @@ import {
   useState,
 } from "react";
 
-import { getTasks, createTask } from "@/api/taskApi";
+import {
+  getTasks,
+  createTask,
+  deleteTask,
+  updateTask as updateTaskApi
+} from "@/api/taskApi";
+
 import { TaskContext } from "./TaskContext.js";
 
 export function TaskProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -38,12 +45,43 @@ export function TaskProvider({ children }) {
     }
   };
 
+  const removeTask = async (id) => {
+    try {
+      await deleteTask(id)
+
+      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id))
+    } catch (error) {
+      console.error("Failed to delete task:", error);
+      throw error
+
+    }
+  }
+
+
+  const updateTask = async (id, taskData) => {
+    try {
+      const updatedTask = await updateTaskApi(
+        id,
+        taskData
+      )
+
+      setTasks((prevTasks) => prevTasks.map((task) => task._id ? updatedTask : task))
+
+      return updatedTask
+    } catch (error) {
+      console.error("Failed to update task:", error);
+      throw error
+    }
+  }
+
   return (
     <TaskContext.Provider
       value={{
         tasks,
         loading,
-        addTask
+        addTask,
+        removeTask,
+        updateTask,
       }}
     >
       {children}

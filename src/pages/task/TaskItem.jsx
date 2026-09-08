@@ -1,10 +1,19 @@
+import { useTasks } from "@/context/useTasks";
 import {
     CheckCircle2,
     Circle,
     Clock,
+    Pencil,
+    Trash2,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function TaskItem({ tasks = [] }) {
+
+    const { removeTask } = useTasks()
+
+    // console.log("TASK IDS:", tasks.map((task) => task._id));
+
     const getStatusIcon = (status) => {
         switch (status) {
             case "Completed":
@@ -33,6 +42,25 @@ function TaskItem({ tasks = [] }) {
                 );
         }
     };
+
+    const formatDate = (date) => {
+        if (!date) return "No due date"
+        return new Date(date).toLocaleDateString("en-GB")
+    }
+
+    const handleDelete = async (id) => {
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this task?"
+        )
+        if (!confirmed) return
+
+        try {
+            await removeTask(id)
+        } catch (error) {
+            console.error("Failed to delete task:", error);
+
+        }
+    }
 
     return (
         <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
@@ -63,7 +91,7 @@ function TaskItem({ tasks = [] }) {
                 ) : (
                     tasks.map((task) => (
                         <div
-                            key={task.id}
+                            key={task._id}
                             className="flex items-center gap-3 rounded-lg border border-gray-100 p-3 transition hover:bg-gray-50"
                         >
                             {/* Status */}
@@ -83,7 +111,7 @@ function TaskItem({ tasks = [] }) {
                                     <span>•</span>
 
                                     <span className="text-red-500">
-                                        Due: {task.dueDate}
+                                        Due: {formatDate(task.dueDate)}
                                     </span>
                                 </div>
                             </div>
@@ -99,6 +127,23 @@ function TaskItem({ tasks = [] }) {
                             >
                                 {task.priority}
                             </span>
+
+                            {/* Edit */}
+                            <Link
+                                to={`/dashboard/edit/${task._id}`}
+                                className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                                title="Edit task">
+                                <Pencil size={17} />
+                            </Link>
+
+                            {/* Delete */}
+                            <button
+                                type="button"
+                                onClick={() => handleDelete(task._id)}
+                                className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500"
+                                title="Delete task">
+                                <Trash2 size={17} />
+                            </button>
                         </div>
                     ))
                 )}

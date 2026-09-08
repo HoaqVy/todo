@@ -11,6 +11,7 @@ import Team from "./pages/Team";
 import Client from "./pages/Client";
 import Layout from "./components/layout/Layout";
 import CreateTask from "./pages/task/CreateTask";
+import EditTask from "./pages/task/EditTask";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/client" element={<Client />} />
         <Route path="/sticky-wall" element={<StickyWall />} />
         <Route path="/create-task" element={<CreateTask />} />
+        <Route path="/dashboard/edit/:id" element={<EditTask />} />
       </Route>
     </Routes>
   );

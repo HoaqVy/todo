@@ -1,9 +1,9 @@
+import { useState } from "react";
+import { CircleCheck, CirclePlus, ClipboardList, Clock, Eraser, TriangleAlert } from "lucide-react";
 
 import Search from "@/components/common/Search";
 import Button from "@/components/common/Button";
-import { CircleCheck, CirclePlus, ClipboardList, Clock, Eraser, TriangleAlert } from "lucide-react";
 import TaskItem from "@/pages/task/TaskItem";
-import { useState } from "react";
 import BoxSeaction from "@/components/common/BoxSection";
 import DashboardCard from "@/pages/dashboard/DaskboardCard";
 import { isOverdue } from "@/pages/task/TaskUtils";
@@ -11,34 +11,18 @@ import TaskOverview from "@/pages/task/TaskOverview";
 import { useTasks } from "@/context/useTasks";
 
 
-
-const owners = [
-  "Hoang Vy",
-  "Nguyen Van A",
-  "Nguyen Van B",
-];
-
-const statuses = [
-  "Todo",
-  "In Progress",
-  "Completed",
-];
-
-const priorities = [
-  "Low",
-  "Medium",
-  "High",
-];
-
-
-
 function DashboardFeature() {
-  // Filter
+  const {
+    tasks = [],
+    loading,
+  } = useTasks();
+
+  // FILTER STATE
   const [search, setSearch] = useState("")
   const [owner, setOwner] = useState("")
   const [status, setStatus] = useState("")
   const [priority, setPriority] = useState("")
-  const { tasks, loading } = useTasks();
+
 
   if (loading) {
     return (
@@ -49,10 +33,28 @@ function DashboardFeature() {
       </div>
     );
   }
+  // FILTER OPTIONS
 
-  // Filter tasks
+  const owners = [
+    ...new Set(tasks.map((task) => task.owner).filter(Boolean))
+  ];
+
+  const statuses = [
+    "Todo",
+    "In Progress",
+    "Completed",
+  ];
+
+  const priorities = [
+    "Low",
+    "Medium",
+    "High",
+  ];
+
+
+  // FILTER TASKS
+  const keyword = search.toLowerCase().trim();
   const filteredTasks = tasks.filter((task) => {
-    const keyword = search.toLowerCase().trim();
 
     const matchSearch =
       task.title?.toLowerCase().includes(keyword) ||
@@ -73,17 +75,25 @@ function DashboardFeature() {
     );
   });
 
-  // Dashboard statistics 
+  // DASHBOARD STATISTICS
   const totalTasks = filteredTasks.length
+
   const completedTasks = filteredTasks.filter(
     (task) => task.status === "Completed"
   ).length
+
   const inProgressTasks = filteredTasks.filter(
     (task) => task.status === "In Progress"
   ).length
+
   const overdueTask = filteredTasks.filter(isOverdue).length;
   // console.log("TaskItem tasks:", tasks);
   // console.log("filteredTasks:", filteredTasks);
+
+  const completedPercentage =
+    totalTasks > 0
+      ? Math.round((completedTasks / totalTasks) * 100)
+      : 0;
 
   // Clear Filter
   const handleCleanFilter = () => {
@@ -92,7 +102,7 @@ function DashboardFeature() {
     setStatus("");
     setPriority("")
   }
-
+  // RENDER
   return (
     <div>
       <div >
@@ -101,8 +111,9 @@ function DashboardFeature() {
             <h1 className="text-4xl font-bold text-black">Dashboard</h1>
             <span>Overview of your tasks and productivity</span>
           </div>
-          <Button href="/dashboard/create" icon={CirclePlus} />
+          <Button href="/create-task" icon={CirclePlus} />
         </div>
+
         {/* Filter */}
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Search className="w-full " value={search} onChange={setSearch} />
@@ -139,6 +150,11 @@ function DashboardFeature() {
             </button>
           </div>
         </div>
+
+        {/* =========================
+          DASHBOARD CARDS
+      ========================= */}
+
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <DashboardCard
             title="Total Tasks"
@@ -150,7 +166,7 @@ function DashboardFeature() {
           <DashboardCard
             title="Completed"
             value={completedTasks}
-            description="50% of total tasks"
+            description={`${completedPercentage}% of total tasks`}
             icon={CircleCheck}
           />
 
@@ -168,6 +184,10 @@ function DashboardFeature() {
             icon={TriangleAlert}
           />
         </div>
+
+        {/* =========================
+          OVERVIEW + RECENT TASKS
+      ========================= */}
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <TaskOverview tasks={filteredTasks} />
           <TaskItem tasks={filteredTasks} />

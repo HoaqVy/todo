@@ -1,9 +1,9 @@
 
-import Tasks from "../features/task/tasks";
+import Tasks from "../features/page-nav/tasks";
 import Search from "../common/Search";
-import Report from "../features/task/report";
-import Tags from "../features/task/tags";
-import UserMenu from "../features/task/userName";
+import Report from "../features/page-nav/report";
+import Tags from "../features/page-nav/tags";
+import UserMenu from "../features/page-nav/userName";
 
 function Navbar() {
   return (

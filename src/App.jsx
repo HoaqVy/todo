@@ -1,17 +1,17 @@
 import { Routes, Route } from "react-router-dom";
 
-import Upcoming from "./pages/Upcoming";
 import Today from "./pages/Today";
-import Calendar from "./pages/Calendar";
 import StickyWall from "./pages/StickyWall";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import DashboardCreate from "./components/features/dashboard/create";
+import DashboardCreate from "./components/features/dashboard/DashboardCreate";
 import Team from "./pages/Team";
 import Client from "./pages/Client";
 import Layout from "./components/layout/Layout";
-import CreateTask from "./pages/task/CreateTask";
-import EditTask from "./pages/task/EditTask";
+import CreateTask from "./components/features/task/CreateTask";
+import EditTask from "./components/features/task/EditTask";
+import Upcoming from "./pages/Upcoming";
+import Calendar from "./pages/Calendar";
 
 function App() {
   return (

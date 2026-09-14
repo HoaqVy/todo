@@ -2,7 +2,7 @@ import DashboardFeature from "@/components/features/dashboard";
 
 function Dashboard() {
   return (
-  <DashboardFeature/>
+    <DashboardFeature />
   );
 }
 export default Dashboard;

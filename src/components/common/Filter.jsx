@@ -1,21 +1,24 @@
-import BoxSeaction from "./BoxSection";
-
-
-const defaultPeriods = [
-    "Today", "This Week", "This month", "This year"
-];
-
 function Filter({
-    value, onChange, className = "", options = defaultPeriods
+    value = "",
+    onChange,
+    options = [],
+    placeholder = "Select", 
+    className = ""
 }) {
+
     return (
-        <BoxSeaction
-            items={options}
+        <select
             value={value}
-            onValueChange={onChange}
-            placeholder="Period"
-            className={className}
-        />
+            onChange={(e) => onChange(e.target.value)}
+            className={`h-10 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 outline-none focus:border-gray-400 ${className}`}
+        >
+            <option value="" disabled>
+                {placeholder}
+            </option>
+            {options.map((option) => (
+                <option key={option} value={option}>{option}</option>
+            ))}
+        </select>
     )
 }
 

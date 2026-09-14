@@ -1,4 +1,4 @@
-import TodayFeature from "@/components/features/today";
+import TodayFeature from "@/components/features/today/TodayFeature";
 
 function Today() {
   return (

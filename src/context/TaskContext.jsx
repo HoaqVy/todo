@@ -16,7 +16,7 @@ export function TaskProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -57,22 +57,22 @@ export function TaskProvider({ children }) {
     }
   }
 
-
   const updateTask = async (id, taskData) => {
     try {
-      const updatedTask = await updateTaskApi(
-        id,
-        taskData
-      )
+      const updatedTask = await updateTaskApi(id, taskData);
 
-      setTasks((prevTasks) => prevTasks.map((task) => task._id ? updatedTask : task))
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task._id === id ? updatedTask : task
+        )
+      );
 
-      return updatedTask
+      return updatedTask;
     } catch (error) {
       console.error("Failed to update task:", error);
-      throw error
+      throw error;
     }
-  }
+  };
 
   return (
     <TaskContext.Provider

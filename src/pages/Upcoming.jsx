@@ -1,4 +1,4 @@
-import UpcomingFeature from "@/components/features/upcoming";
+import UpcomingFeature from "@/components/features/upcoming/Upcoming";
 
 function Upcoming() {
   return (

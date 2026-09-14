@@ -16,8 +16,9 @@ const statusConfig = {
     },
 };
 
+
 function TaskOverview({ tasks = [] }) {
-    const [period, setPeriod] = useState("This Week");
+    const [period, setPeriod] = useState("Select");
 
     // =========================
     // Filter theo Period
@@ -68,7 +69,7 @@ function TaskOverview({ tasks = [] }) {
         }
 
         // This month
-        if (period === "This month") {
+        if (period === "This Month") {
             return tasks.filter((task) => {
                 if (!task.dueDate) return false;
 
@@ -82,7 +83,7 @@ function TaskOverview({ tasks = [] }) {
         }
 
         // This year
-        if (period === "This year") {
+        if (period === "This Year") {
             return tasks.filter((task) => {
                 if (!task.dueDate) return false;
 
@@ -167,6 +168,9 @@ function TaskOverview({ tasks = [] }) {
                 <Filter
                     value={period}
                     onChange={setPeriod}
+                    options={[
+                        "Today", "This Week", "This Month", "This Year"
+                    ]}
                     className="w-40"
                 />
             </div>

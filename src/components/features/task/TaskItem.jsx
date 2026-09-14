@@ -8,11 +8,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-function TaskItem({ tasks = [] }) {
+function TaskItem({ tasks = [], title = "Recent Tasks", subtitle = "Your latest tasks" }) {
 
     const { removeTask } = useTasks()
-
-    // console.log("TASK IDS:", tasks.map((task) => task._id));
 
     const getStatusIcon = (status) => {
         switch (status) {
@@ -69,11 +67,11 @@ function TaskItem({ tasks = [] }) {
             <div className="flex items-center justify-between">
                 <div>
                     <h3 className="text-lg font-bold text-gray-900">
-                        Recent Tasks
+                        {title}
                     </h3>
 
                     <p className="mt-1 text-sm text-gray-500">
-                        Your latest tasks
+                        {subtitle}
                     </p>
                 </div>
 

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useTasks } from "@/context/useTasks";
 import { useNavigate } from "react-router-dom";
+import Button from "@/components/common/Button";
+import { Undo2 } from "lucide-react";
 
 function CreateTask() {
     const { addTask } = useTasks();
@@ -39,13 +41,22 @@ function CreateTask() {
 
     return (
         <div className="mx-auto max-w-2xl">
-            <h1 className="mb-6 text-2xl font-bold">
-                Create Task
-            </h1>
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-4xl font-bold text-black">
+                        Create task
+                    </h1>
+                </div>
+
+                <Button
+                    href="/dashboard"
+                    icon={Undo2}
+                />
+            </div>
 
             <form
                 onSubmit={handleSubmit}
-                className="space-y-5 rounded-xl border border-gray-200 bg-white p-6"
+                className="space-y-5 rounded-xl border border-gray-200 bg-white p-6 mt-3"
             >
                 {/* Title */}
                 <div>

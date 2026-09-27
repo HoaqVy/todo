@@ -110,6 +110,17 @@ function CalendarFeature() {
     }
   };
 
+  const isToday = (day) => {
+    if (!day) return false
+    const today = new Date()
+
+    return (
+      today.getFullYear() === year &&
+      today.getMonth() === month &&
+      today.getDate() === day
+    )
+  }
+
   return (
     <div>
 
@@ -180,13 +191,13 @@ function CalendarFeature() {
             return (
               <div
                 key={index}
-                className="min-h-24 min-w-0 overflow-hidden border-b border-r border-gray-100 p-3"
+                className={`min-h-24 min-w-0 overflow-hidden border-b border-r border-gray-100 p-3 ${isToday(day) ? "bg-blue-50/50" : "bg-white"}`}
               >
                 {day && (
                   <>
                     {/* Day number */}
-                    <div className="text-sm font-medium text-gray-900">
-                      {day}
+                    <div className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium ${isToday(day) ? "bg-blue-500 text-white" : "text-gray-900"}`}>
+
                     </div>
 
                     {/* Tasks */}
@@ -209,8 +220,8 @@ function CalendarFeature() {
                         {/* Task title */}
                         <span
                           className={`min-w-0 flex-1 truncate ${task.status === "Completed"
-                              ? "line-through opacity-70"
-                              : ""
+                            ? "line-through opacity-70"
+                            : ""
                             }`}
                         >
                           {task.title}
@@ -218,13 +229,14 @@ function CalendarFeature() {
                       </Link>
                     ))}
                   </>
-                )}
+                )
+                }
               </div>
             );
           })}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

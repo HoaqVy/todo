@@ -15,22 +15,30 @@ import { TaskContext } from "./TaskContext.js";
 export function TaskProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getTasks();
+
+      setTasks(data);
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+
+      setError("Failed to load tasks. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const data = await getTasks();
-        setTasks(data);
-      } catch (error) {
-        console.error("Failed to fetch tasks:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTasks();
   }, []);
+
+
 
   const addTask = async (taskData) => {
     try {
@@ -79,6 +87,8 @@ export function TaskProvider({ children }) {
       value={{
         tasks,
         loading,
+        error,
+        fetchTasks,
         addTask,
         removeTask,
         updateTask,

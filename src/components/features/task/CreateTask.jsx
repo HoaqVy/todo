@@ -16,6 +16,8 @@ function CreateTask() {
         dueDate: "",
     });
 
+    const [loading, setLoading] = useState(false)
+
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -29,6 +31,7 @@ function CreateTask() {
         e.preventDefault();
 
         try {
+            setLoading(true)
             await addTask(formData);
 
             console.log("Task created successfully");
@@ -36,6 +39,8 @@ function CreateTask() {
             navigate("/dashboard")
         } catch (error) {
             console.error("Failed to create task:", error);
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -144,12 +149,7 @@ function CreateTask() {
                 </div>
 
                 {/* Submit */}
-                <button
-                    type="submit"
-                    className="rounded-lg bg-black px-5 py-2 text-white hover:bg-gray-800"
-                >
-                    Create Task
-                </button>
+                <Button type="submit" loading={loading}>Create Task</Button>
             </form>
         </div>
     );

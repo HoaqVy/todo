@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useTasks } from "@/context/useTasks";
+import Button from "@/components/common/Button";
 
 function EditTask() {
     const { id } = useParams();
@@ -20,6 +21,7 @@ function EditTask() {
     });
 
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         const task = tasks.find(
@@ -55,6 +57,7 @@ function EditTask() {
         e.preventDefault();
 
         try {
+            setLoading(true)
             await updateTask(id, formData);
 
             navigate("/dashboard");
@@ -65,6 +68,8 @@ function EditTask() {
             );
 
             setError("Failed to update task");
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -189,22 +194,22 @@ function EditTask() {
 
                 {/* Buttons */}
                 <div className="flex gap-3">
-                    <button
+                    <Button
                         type="button"
                         onClick={() =>
                             navigate("/dashboard")
                         }
-                        className="rounded-lg border border-gray-300 px-5 py-2 text-gray-700 hover:bg-gray-100"
+                        variant="secondary"
                     >
                         Cancel
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button
                         type="submit"
-                        className="rounded-lg bg-black px-5 py-2 text-white hover:bg-gray-800"
+                        loading={loading}
                     >
                         Update Task
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>

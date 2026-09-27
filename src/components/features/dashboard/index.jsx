@@ -14,7 +14,7 @@ import { useTasks } from "@/context/useTasks";
 import DashboardCard from "./DaskboardCard";
 
 function DashboardFeature() {
-  const { tasks = [], loading } = useTasks();
+  const { tasks = [], loading, error, fetchTasks } = useTasks();
 
   // =========================
   // FILTER STATE
@@ -35,6 +35,42 @@ function DashboardFeature() {
         <p className="text-sm text-gray-500">Loading tasks...</p>
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-75 items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold text-gray-900">Unable to load tasks</h2>
+
+          <p className="mt-2 text-sm text-gray-500">{error}</p>
+
+          <button
+            type="button"
+            onClick={fetchTasks}
+            className="mt-4 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800">
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (tasks.length === 0) {
+    return (
+      <div className="flex min-h-75 items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold text-gray-900">No tasks yet</h2>
+
+          <p className="mt-2 text-sm text-gray-500">Create your first task to get started</p>
+
+          <a
+            href="/create-task"
+            className="mt-4 inline-block rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+          >Create Task</a>
+        </div>
+      </div>
+    )
   }
 
   // =========================

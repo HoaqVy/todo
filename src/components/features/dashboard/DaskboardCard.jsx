@@ -58,7 +58,7 @@ function DashboardCard({ tasks = [] }) {
                 return (
                     <div key={card.title}
                         className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-500">{card.title}</p>
                                 <p className="text-3xl mt-2 font-bold text-gray-900">{card.value}</p>

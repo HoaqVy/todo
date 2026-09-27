@@ -1,3 +1,5 @@
+import Button from "@/components/common/Button";
+import { useToast } from "@/context/ToastContext";
 import { useTasks } from "@/context/useTasks";
 import {
     CheckCircle2,
@@ -6,11 +8,18 @@ import {
     Pencil,
     Trash2,
 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
-function TaskItem({ tasks = [], title = "Recent Tasks", subtitle = "Your latest tasks" }) {
+function TaskItem({
+    tasks = [],
+    title = "Recent Tasks",
+    subtitle = "Your latest tasks"
+}) {
 
     const { removeTask } = useTasks()
+    const { showToast } = useToast()
+    const [deletingId, setDeletingId] = useState(null)
 
     const getStatusIcon = (status) => {
         switch (status) {
@@ -53,10 +62,15 @@ function TaskItem({ tasks = [], title = "Recent Tasks", subtitle = "Your latest 
         if (!confirmed) return
 
         try {
+            setDeletingId(id)
             await removeTask(id)
+            showToast("Task deleted successfully")
         } catch (error) {
             console.error("Failed to delete task:", error);
+            showToast("Failed to delete task:", error)
 
+        } finally {
+            setDeletingId(null)
         }
     }
 
@@ -135,13 +149,14 @@ function TaskItem({ tasks = [], title = "Recent Tasks", subtitle = "Your latest 
                             </Link>
 
                             {/* Delete */}
-                            <button
-                                type="button"
+                            <Button
+                                variant="danger"
+                                size="icon"
+                                icon={Trash2}
                                 onClick={() => handleDelete(task._id)}
-                                className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500"
-                                title="Delete task">
-                                <Trash2 size={17} />
-                            </button>
+                                title="Delete task"
+                                loading={deletingId === task._id}
+                            />
                         </div>
                     ))
                 )}

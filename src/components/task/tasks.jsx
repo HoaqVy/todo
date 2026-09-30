@@ -37,7 +37,7 @@ const tasks = [
     },
 ];
 
-function Tasks() {
+function Tasks({ onClose }) {
     return (
         <>
             {/* TASKS */}
@@ -50,6 +50,7 @@ function Tasks() {
                         <NavLink
                             key={task.path}
                             to={task.path}
+                            onClick={onClose}
                             className={({ isActive }) =>
                                 `flex items-center justify-between rounded-lg px-4 py-3 ${isActive ? "bg-gray-200 text-black" : "hover:bg-gray-200"
                                 }`

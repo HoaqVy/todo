@@ -6,11 +6,11 @@ import { Link } from "react-router-dom";
 function CalendarFeature() {
   const { tasks = [], loading } = useTasks();
 
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   if (loading) {
     return (
-      <div className="flex min-h-75 items-center justify-center">
+      <div className="flex min-h-60 items-center justify-center sm:min-h-75">
         <p className="text-sm text-gray-500">
           Loading tasks...
         </p>
@@ -20,7 +20,6 @@ function CalendarFeature() {
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-
 
   // Tổng số ngày của tháng
   const daysInMonth = new Date(
@@ -52,35 +51,36 @@ function CalendarFeature() {
     days.push(day);
   }
 
-  // Lay task cua 1 ngay cu the
+  // Lấy task của 1 ngày cụ thể
   const getTasksForDay = (day) => {
-    if (!day) return []
+    if (!day) return [];
 
     return tasks.filter((task) => {
-      if (!task.dueDate) return false
+      if (!task.dueDate) return false;
 
-      const dueDate = new Date(task.dueDate)
+      const dueDate = new Date(task.dueDate);
 
       return (
         dueDate.getFullYear() === year &&
         dueDate.getMonth() === month &&
         dueDate.getDate() === day
-      )
-    })
-  }
-  // thang truoc
-  const hanldePreviousMonth = () => {
+      );
+    });
+  };
+
+  // Tháng trước
+  const handlePreviousMonth = () => {
     setCurrentDate(
       new Date(year, month - 1, 1)
-    )
-  }
+    );
+  };
 
-  // Thang sau
+  // Tháng sau
   const handleNextMonth = () => {
     setCurrentDate(
       new Date(year, month + 1, 1)
-    )
-  }
+    );
+  };
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -111,22 +111,23 @@ function CalendarFeature() {
   };
 
   const isToday = (day) => {
-    if (!day) return false
-    const today = new Date()
+    if (!day) return false;
+
+    const today = new Date();
 
     return (
       today.getFullYear() === year &&
       today.getMonth() === month &&
       today.getDate() === day
-    )
-  }
+    );
+  };
 
   return (
-    <div>
+    <div className="w-full min-w-0">
 
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-black">
+      <div className="min-w-0">
+        <h1 className="text-2xl font-bold text-black sm:text-4xl">
           Calendar
         </h1>
 
@@ -136,107 +137,171 @@ function CalendarFeature() {
       </div>
 
       {/* Calendar */}
-      <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        {/* Calender Header */}
-        <div className="mb-6 flex items-center justify-between">
+      <div className="mt-5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm sm:mt-6">
+
+        {/* Calendar Header */}
+        <div className="flex items-center justify-between gap-3 p-4 sm:mb-2 sm:p-6">
+
+          {/* Previous */}
           <button
             type="button"
-            onClick={hanldePreviousMonth}
-            className="rounded-lg border border-gray-200 p-2 text-gray-600 transition hover:bg-gray-100"
-            title="Previous month">
+            onClick={handlePreviousMonth}
+            className="
+                            shrink-0 rounded-lg border border-gray-200
+                            p-2 text-gray-600 transition
+                            hover:bg-gray-100
+                        "
+            title="Previous month"
+            aria-label="Previous month"
+          >
             <ChevronLeft size={20} />
           </button>
+
           {/* Month */}
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="min-w-0 truncate text-center text-base font-bold text-gray-900 sm:text-xl">
             {currentDate.toLocaleDateString("en-US", {
               month: "long",
               year: "numeric",
             })}
           </h2>
 
+          {/* Next */}
           <button
             type="button"
             onClick={handleNextMonth}
-            className="rounded-lg border border-gray-200 p-2 text-gray-600 transition hover:bg-gray-100"
-            title="Next month">
+            className="
+                            shrink-0 rounded-lg border border-gray-200
+                            p-2 text-gray-600 transition
+                            hover:bg-gray-100
+                        "
+            title="Next month"
+            aria-label="Next month"
+          >
             <ChevronRight size={20} />
           </button>
         </div>
 
+        {/* Calendar scroll container */}
+        <div className="overflow-x-auto">
+          <div className="min-w-96">
 
-        {/* Week days */}
-        <div className="grid grid-cols-7 border-b border-gray-200 pb-3">
-          {[
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat",
-            "Sun",
-          ].map((day) => (
-            <div
-              key={day}
-              className="text-center text-sm font-medium text-gray-500"
-            >
-              {day}
+            {/* Week days */}
+            <div className="grid grid-cols-7 border-b border-gray-200 px-2 pb-3 sm:px-6">
+              {[
+                "Mon",
+                "Tue",
+                "Wed",
+                "Thu",
+                "Fri",
+                "Sat",
+                "Sun",
+              ].map((day) => (
+                <div
+                  key={day}
+                  className="
+                                        text-center text-xs font-medium
+                                        text-gray-500 sm:text-sm
+                                    "
+                >
+                  {day}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Days */}
-        <div className="grid grid-cols-7">
-          {days.map((day, index) => {
-            const dayTasks = getTasksForDay(day)
-            return (
-              <div
-                key={index}
-                className={`min-h-24 min-w-0 overflow-hidden border-b border-r border-gray-100 p-3 ${isToday(day) ? "bg-blue-50/50" : "bg-white"}`}
-              >
-                {day && (
-                  <>
-                    {/* Day number */}
-                    <div className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium ${isToday(day) ? "bg-blue-500 text-white" : "text-gray-900"}`}>
+            {/* Days */}
+            <div className="grid grid-cols-7 px-2 sm:px-6">
+              {days.map((day, index) => {
+                const dayTasks = getTasksForDay(day);
 
-                    </div>
-
-                    {/* Tasks */}
-                    {dayTasks.map((task) => (
-                      <Link
-                        key={task._id}
-                        to={`/dashboard/edit/${task._id}`}
-                        className={`flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-md px-2 py-1 text-xs transition hover:opacity-80 ${getStatusStyle(
-                          task.status
-                        )}`}
-                        title={`${task.title} - ${task.status} - ${task.priority}`}
-                      >
-                        {/* Priority dot */}
-                        <span
-                          className={`h-2 w-2 shrink-0 rounded-full ${getPriorityColor(
-                            task.priority
-                          )}`}
-                        />
-
-                        {/* Task title */}
-                        <span
-                          className={`min-w-0 flex-1 truncate ${task.status === "Completed"
-                            ? "line-through opacity-70"
-                            : ""
-                            }`}
+                return (
+                  <div
+                    key={index}
+                    className={`
+                                            min-h-24 min-w-0 overflow-hidden
+                                            border-b border-r border-gray-100
+                                            p-2 sm:min-h-28 sm:p-3
+                                            ${isToday(day)
+                        ? "bg-blue-50/50"
+                        : "bg-white"
+                      }
+                                        `}
+                  >
+                    {day && (
+                      <>
+                        {/* Day number */}
+                        <div
+                          className={`
+                                                        mb-2 flex h-7 w-7
+                                                        items-center justify-center
+                                                        rounded-full text-xs
+                                                        font-medium sm:text-sm
+                                                        ${isToday(day)
+                              ? "bg-blue-500 text-white"
+                              : "text-gray-900"
+                            }
+                                                    `}
                         >
-                          {task.title}
-                        </span>
-                      </Link>
-                    ))}
-                  </>
-                )
-                }
-              </div>
-            );
-          })}
+                          {day}
+                        </div>
+
+                        {/* Tasks */}
+                        <div className="space-y-1">
+                          {dayTasks.map((task) => (
+                            <Link
+                              key={task._id}
+                              to={`/dashboard/edit/${task._id}`}
+                              className={`
+                                                                flex w-full min-w-0
+                                                                items-center gap-1.5
+                                                                overflow-hidden
+                                                                rounded-md px-1.5 py-1
+                                                                text-[10px] transition
+                                                                hover:opacity-80
+                                                                sm:gap-2 sm:px-2 sm:text-xs
+                                                                ${getStatusStyle(
+                                task.status
+                              )}
+                                                            `}
+                              title={`${task.title} - ${task.status} - ${task.priority}`}
+                            >
+                              {/* Priority dot */}
+                              <span
+                                className={`
+                                                                    h-1.5 w-1.5
+                                                                    shrink-0 rounded-full
+                                                                    sm:h-2 sm:w-2
+                                                                    ${getPriorityColor(
+                                  task.priority
+                                )}
+                                                                `}
+                              />
+
+                              {/* Task title */}
+                              <span
+                                className={`
+                                                                    min-w-0 flex-1 truncate
+                                                                    ${task.status ===
+                                    "Completed"
+                                    ? "line-through opacity-70"
+                                    : ""
+                                  }
+                                                                `}
+                              >
+                                {task.title}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 }
 

@@ -45,10 +45,11 @@ function CreateTask() {
     };
 
     return (
-        <div className="mx-auto max-w-2xl">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-4xl font-bold text-black">
+        <div className="mx-auto w-full max-w-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-bold text-black sm:text-4xl">
                         Create task
                     </h1>
                 </div>
@@ -56,18 +57,26 @@ function CreateTask() {
                 <Button
                     href="/dashboard"
                     icon={Undo2}
+                    size="icon"
                 />
             </div>
 
+            {/* Form */}
             <form
                 onSubmit={handleSubmit}
-                className="space-y-5 rounded-xl border border-gray-200 bg-white p-6 mt-3"
+                className="
+                    mt-4 space-y-5
+                    rounded-xl border border-gray-200 bg-white
+                    p-4 shadow-sm
+                    sm:mt-5 sm:p-6
+                "
             >
                 {/* Title */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Title
                     </label>
+
 
                     <input
                         type="text"
@@ -75,14 +84,19 @@ function CreateTask() {
                         value={formData.title}
                         onChange={handleChange}
                         placeholder="Enter task title"
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-gray-500"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                         required
                     />
                 </div>
 
                 {/* Owner */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Owner
                     </label>
 
@@ -92,14 +106,19 @@ function CreateTask() {
                         value={formData.owner}
                         onChange={handleChange}
                         placeholder="Enter owner"
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-gray-500"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                         required
                     />
                 </div>
 
                 {/* Status */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Status
                     </label>
 
@@ -107,7 +126,12 @@ function CreateTask() {
                         name="status"
                         value={formData.status}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            bg-white px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                     >
                         <option value="Todo">Todo</option>
                         <option value="In Progress">In Progress</option>
@@ -115,9 +139,10 @@ function CreateTask() {
                     </select>
                 </div>
 
+
                 {/* Priority */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Priority
                     </label>
 
@@ -125,7 +150,12 @@ function CreateTask() {
                         name="priority"
                         value={formData.priority}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            bg-white px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                     >
                         <option value="Low">Low</option>
                         <option value="Medium">Medium</option>
@@ -133,9 +163,10 @@ function CreateTask() {
                     </select>
                 </div>
 
+
                 {/* Due date */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Due Date
                     </label>
 
@@ -144,12 +175,25 @@ function CreateTask() {
                         name="dueDate"
                         value={formData.dueDate}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            bg-white px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                     />
                 </div>
 
                 {/* Submit */}
-                <Button type="submit" loading={loading}>Create Task</Button>
+                <div className="pt-1">
+                    <Button
+                        type="submit"
+                        loading={loading}
+                        className="w-full sm:w-auto"
+                    >
+                        Create Task
+                    </Button>
+                </div>
             </form>
         </div>
     );

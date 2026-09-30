@@ -137,9 +137,9 @@ function DashboardFeature() {
           HEADER
       ========================= */}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-black">
+          <h1 className="text-2xl font-bold text-black sm:text-4xl">
             Dashboard
           </h1>
 
@@ -151,6 +151,7 @@ function DashboardFeature() {
         <Button
           href="/create-task"
           icon={CirclePlus}
+          className="w-full sm:w-auto"
         />
       </div>
 
@@ -169,7 +170,7 @@ function DashboardFeature() {
 
         {/* Filters */}
 
-        <div className="grid grid-cols-2 gap-4 sm:col-span-1 lg:col-span-4 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:col-span-1 lg:col-span-4 lg:grid-cols-4">
           <BoxSeaction
             items={owners}
             value={owner}

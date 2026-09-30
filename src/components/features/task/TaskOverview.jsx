@@ -151,10 +151,10 @@ function TaskOverview({ tasks = [] }) {
     }, [periodTasks]);
 
     return (
-        <div className="w-full rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
+        <div className="w-full rounded-xl border border-gray-300 bg-white p-4 shadow-sm sm:p-6">
 
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h3 className="text-lg font-bold tracking-wide text-gray-900">
                         Task Overview
@@ -171,7 +171,7 @@ function TaskOverview({ tasks = [] }) {
                     options={[
                         "Today", "This Week", "This Month", "This Year"
                     ]}
-                    className="w-40"
+                    className="w-full sm:w-40"
                 />
             </div>
 
@@ -180,24 +180,24 @@ function TaskOverview({ tasks = [] }) {
                 {overviewData.map((item) => (
                     <div
                         key={item.label}
-                        className="flex items-center gap-4"
+                        className="flex min-w-0 items-center gap-2 sm:gap-4"
                     >
-                        <span className="w-28 truncate text-sm text-gray-800">
+                        <span className="w-20 shrink-0 truncate text-xs text-gray-800 sm:w-28 sm:text-sm">
                             {item.label}
                         </span>
 
-                        <div className="flex flex-1 items-center gap-0.5 overflow-hidden">
+                        <div className="flex min-w-0 flex-1 items-center gap-0.5 overflow-hidden">
                             {Array.from({
                                 length: item.count,
                             }).map((_, index) => (
                                 <div
                                     key={index}
-                                    className={`h-4 w-2 rounded-[1px] ${item.color}`}
+                                    className={`h-3 w-1.5 shrink-0 rounded-[1px] sm:h-4 sm:w-2 ${item.color}`}
                                 />
                             ))}
                         </div>
 
-                        <span className="w-6 text-right text-sm font-bold text-gray-800">
+                        <span className="w-5 shrink-0 text-right text-sm font-bold text-gray-800 sm:w-6">
                             {item.count}
                         </span>
                     </div>

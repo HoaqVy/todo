@@ -1,64 +1,112 @@
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
+
 import Header from "./Header";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 
 function Layout() {
-    const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isMenuOpen]);
 
     return (
-
         <div className="flex min-h-screen flex-col">
-            {/* Header */}
             <Header />
 
-            {/* Main */}
-            <div className="relative flex flex-1 overflow-hidden">
-                {/* Mobile menu button  */}
+            <div className="relative flex min-h-0 flex-1 overflow-hidden">
+                {/* Open menu button */}
                 <button
                     type="button"
                     onClick={() => setIsMenuOpen(true)}
-                    className="fixed right-4 top-4 z-60 rounded-lg bg-white p-2 shadow-md lg:hidden"
+                    className="
+                        fixed left-4 top-20 z-40
+                        rounded-lg border border-gray-200
+                        bg-white p-2 shadow-md
+                        transition hover:bg-gray-100
+                        lg:hidden
+                    "
+                    aria-label="Open menu"
                 >
                     <Menu size={22} />
                 </button>
 
                 {/* Overlay */}
                 {isMenuOpen && (
-                    <div
+                    <button
+                        type="button"
+                        aria-label="Close menu"
                         onClick={() => setIsMenuOpen(false)}
-                        className="fixed inset-0 z-40 bg-black/30 lg:hidden"
+                        className="
+                            fixed inset-0 z-40
+                            cursor-default bg-black/30
+                            lg:hidden
+                        "
                     />
                 )}
-                {/* Navbar */}
+
+                {/* Sidebar */}
                 <aside
-                    className={`fixed inset-y-0 left-0 z-50 w-80.75 border-r border-gray-200 bg-gray-100 transition-transform duration-300 lg:static lg:translate-x-0 ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`
-                    }
+                    className={`
+                        fixed inset-y-0 left-0 z-50
+                        w-70
+                        border-r border-gray-200
+                        bg-gray-100
+                        transition-transform duration-300
+                        ease-in-out
+
+                        lg:static
+                        lg:w-80
+                        lg:translate-x-0
+
+                        ${isMenuOpen
+                            ? "translate-x-0"
+                            : "-translate-x-full"
+                        }
+                    `}
                 >
                     {/* Close button */}
-                    <button type="button"
+                    <button
+                        type="button"
                         onClick={() => setIsMenuOpen(false)}
-                        className="absolute right-4 top-4 z-10 rounded-lg p-2 hover:bg-gray-200 lg:hidden"
+                        className="
+                            absolute right-4 top-4 z-10
+                            rounded-lg p-2
+                            transition hover:bg-gray-200
+                            lg:hidden
+                        "
+                        aria-label="Close menu"
                     >
                         <X size={22} />
                     </button>
-                    <Navbar />
+
+                    <Navbar
+                        onClose={() => setIsMenuOpen(false)}
+                    />
                 </aside>
 
-                {/* Content */}
-                <main className="min-w-0 flex-1">
-                    <div className="p-4 pt-16 sm:p-6 lg:p-8 lg:pt-8">
+                {/* Main */}
+                <main className="min-w-0 flex-1 overflow-y-auto">
+                    <div className="p-4 pt-20 sm:p-6 sm:pt-20 lg:p-8 lg:pt-8">
                         <Outlet />
                     </div>
                 </main>
             </div>
-            {/* Footer */}
+
             <Footer />
         </div>
-
-    )
+    );
 }
 
-export default Layout
+export default Layout;

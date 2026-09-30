@@ -29,31 +29,52 @@ function TodayFeature() {
 
   if (loading) {
     return (
-      <div className="flex min-h-75 items-center justify-center">
-        <p className="text-sm text-gray-500">Loading tasks....</p>
+      <div className="flex min-h-60 items-center justify-center sm:min-h-75">
+        <p className="text-sm text-gray-500">
+          Loading tasks...
+        </p>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className="w-full min-w-0">
+
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-black">Today</h1>
-          <p className="mt-1 text-sm text-gray-500">Tasks that are due today</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-black sm:text-4xl">
+            Today
+          </h1>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Tasks that are due today
+          </p>
         </div>
-        <Button href="/create-task" icon={CirclePlus} />
+
+        <Button
+          href="/create-task"
+          icon={CirclePlus}
+          className="w-full sm:w-auto"
+        >
+          Create Task
+        </Button>
       </div>
 
       {/* Total */}
-      <div className="mt-6">
-        <p className="text-sm text-gray-500">{todayTasks.length} tasks today</p>
+      <div className="mt-5 sm:mt-6">
+        <p className="text-sm text-gray-500">
+          {todayTasks.length} tasks today
+        </p>
       </div>
 
       {/* Tasks */}
-      <div className="mt-4">
-        <TaskItem tasks={todayTasks} title="Today's Tasks" subtitle="Tasks that are due today" />
+      <div className="mt-4 sm:mt-5">
+        <TaskItem
+          tasks={todayTasks}
+          title="Today's Tasks"
+          subtitle="Tasks that are due today"
+        />
       </div>
     </div>
   )

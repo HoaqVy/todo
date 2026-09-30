@@ -1,3 +1,4 @@
+import { useTasks } from "@/context/useTasks";
 import { LayoutList } from "lucide-react";
 import {
   HiOutlineChevronDoubleRight,
@@ -17,13 +18,13 @@ const tasks = [
     title: "Upcoming",
     path: "/upcoming",
     icon: HiOutlineChevronDoubleRight,
-    count: 2,
+    type: "upcoming"
   },
   {
     title: "Today",
     path: "/today",
     icon: HiOutlineClipboardList,
-    count: 2,
+    type: "today"
   },
   {
     title: "Calendar",
@@ -37,7 +38,57 @@ const tasks = [
   },
 ];
 
-function Tasks() {
+function Tasks({ onClose }) {
+  const { tasks: allTasks = [] } = useTasks()
+
+  const today = new Date()
+
+  const todayStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  )
+
+  const tomorrowStart = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + 1
+  );
+
+  const upcomingCount = allTasks.filter((task) => {
+    if (!task.dueDate) return false;
+    if (task.status === "Completed") return false;
+
+    const dueDate = new Date(task.dueDate);
+
+    return dueDate >= tomorrowStart;
+  }).length;
+
+  const todayCount = allTasks.filter((task) => {
+    if (!task.dueDate) return false;
+    if (task.status === "Completed") return false;
+
+    const dueDate = new Date(task.dueDate);
+
+    return (
+      dueDate >= todayStart &&
+      dueDate < tomorrowStart
+    );
+  }).length;
+
+  const getCount = (type) => {
+    if (type === "upcoming") {
+      return upcomingCount;
+    }
+
+    if (type === "today") {
+      return todayCount;
+    }
+
+    return null;
+  };
+
+
   return (
     <>
       {/* TASKS */}
@@ -45,31 +96,45 @@ function Tasks() {
         <h2 className="mb-5 border-t border-gray-200 mt-8 pt-6 text-sm font-bold tracking-wider text-gray-500 uppercase">
           Tasks
         </h2>
+
         <div className="space-y-2">
-          {tasks.map((task) => (
-            <NavLink
-              key={task.path}
-              to={task.path}
-              className={({ isActive }) =>
-                `flex items-center justify-between rounded-lg px-4 py-3 ${isActive
-                  ? "bg-gray-200 text-black"
-                  : "hover:bg-gray-200"
-                }`
-              }
-            >
-              <div className="flex items-center gap-3">
-                <task.icon size={20} />
-                <span className="font-medium">{task.title}</span>
-              </div>
+          {tasks.map((task) => {
+            const Icon = task.icon;
+            const count = getCount(task.type);
 
-              {task.count && (
+            return (
+              <NavLink
+                key={task.path}
+                to={task.path}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  `
+                                flex items-center justify-between
+                                rounded-lg px-4 py-3
+                                transition
+                                ${isActive
+                    ? "bg-gray-200 text-black"
+                    : "text-gray-700 hover:bg-gray-200"
+                  }
+                                `
+                }
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={20} />
 
-                <span className="rounded bg-white px-2 py-1 text-xs font-semibold">
-                  {task.count ? task.count : null}
-                </span>
-              )}
-            </NavLink>
-          ))}
+                  <span className="font-medium">
+                    {task.title}
+                  </span>
+                </div>
+
+                {count !== null && (
+                  <span className="rounded bg-white px-2 py-1 text-xs font-semibold">
+                    {count}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
         </div>
       </div>
     </>

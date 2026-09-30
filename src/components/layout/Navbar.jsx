@@ -1,22 +1,20 @@
 
 import Tasks from "../features/page-nav/tasks";
-import Search from "../common/Search";
 import Report from "../features/page-nav/report";
 import Tags from "../features/page-nav/tags";
 import UserMenu from "../features/page-nav/userName";
 
-function Navbar() {
+function Navbar({ onClose }) {
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <div className="h-full overflow-y-auto p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-4xl font-bold text-black">
+      <div className="mb-6 flex items-center justify-between sm:mb-8">
+        <h1 className="text-3xl font-bold text-black sm:text-4xl">
           Menu
         </h1>
       </div>
-      <Search />
-      <Tasks />
-      <Report />
+      <Tasks onClose={onClose} />
+      <Report onClose={onClose} />
       <Tags />
       <UserMenu />
     </div>

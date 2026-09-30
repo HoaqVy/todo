@@ -67,7 +67,7 @@ function TaskItem({
             showToast("Task deleted successfully")
         } catch (error) {
             console.error("Failed to delete task:", error);
-            showToast("Failed to delete task:", error)
+            showToast("Failed to delete task:", "error")
 
         } finally {
             setDeletingId(null)
@@ -75,11 +75,11 @@ function TaskItem({
     }
 
     return (
-        <div className="rounded-xl border border-gray-300 bg-white p-6 shadow-sm">
+        <div className="w-full rounded-xl border border-gray-300 bg-white p-4 shadow-sm sm:p-6">
 
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                     <h3 className="text-lg font-bold text-gray-900">
                         {title}
                     </h3>
@@ -89,13 +89,13 @@ function TaskItem({
                     </p>
                 </div>
 
-                <span className="text-sm text-gray-500">
+                <span className="shrink-0 text-xs text-gray-500 sm:text-sm">
                     {tasks.length} tasks
                 </span>
             </div>
 
             {/* Task list */}
-            <div className="mt-6 space-y-3 max-h-60 overflow-y-auto pr-2">
+            <div className="mt-5 max-h-60 space-y-3 overflow-y-auto pr-1 sm:mt-6 sm:pr-2">
                 {tasks.length === 0 ? (
                     <div className="py-8 text-center text-sm text-gray-500">
                         No tasks found
@@ -104,10 +104,17 @@ function TaskItem({
                     tasks.map((task) => (
                         <div
                             key={task._id}
-                            className="flex items-center gap-3 rounded-lg border border-gray-100 p-3 transition hover:bg-gray-50"
+                            className="
+                            flex flex-wrap items-center gap-3
+                            rounded-lg border border-gray-100 p-3
+                            transition hover:bg-gray-50
+                            sm:flex-nowrap
+                        "
                         >
                             {/* Status */}
-                            {getStatusIcon(task.status)}
+                            <div className="shrink-0">
+                                {getStatusIcon(task.status)}
+                            </div>
 
                             {/* Task information */}
                             <div className="min-w-0 flex-1">
@@ -115,8 +122,8 @@ function TaskItem({
                                     {task.title}
                                 </h4>
 
-                                <div className="mt-1 flex items-center gap-2 text-xs text-gray-500">
-                                    <span>
+                                <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500">
+                                    <span className="max-w-32 truncate">
                                         {task.owner}
                                     </span>
 
@@ -128,35 +135,43 @@ function TaskItem({
                                 </div>
                             </div>
 
-                            {/* Priority */}
-                            <span
-                                className={`rounded-full px-2.5 py-1 text-xs font-medium ${task.priority === "High"
-                                    ? "bg-red-50 text-red-600"
-                                    : task.priority === "Medium"
-                                        ? "bg-yellow-50 text-yellow-600"
-                                        : "bg-gray-100 text-gray-600"
-                                    }`}
-                            >
-                                {task.priority}
-                            </span>
+                            {/* Actions */}
+                            <div className="ml-auto flex shrink-0 items-center gap-1">
+                                {/* Priority */}
+                                <span
+                                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${task.priority === "High"
+                                        ? "bg-red-50 text-red-600"
+                                        : task.priority === "Medium"
+                                            ? "bg-yellow-50 text-yellow-600"
+                                            : "bg-gray-100 text-gray-600"
+                                        }`}
+                                >
+                                    {task.priority}
+                                </span>
 
-                            {/* Edit */}
-                            <Link
-                                to={`/dashboard/edit/${task._id}`}
-                                className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-                                title="Edit task">
-                                <Pencil size={17} />
-                            </Link>
 
-                            {/* Delete */}
-                            <Button
-                                variant="danger"
-                                size="icon"
-                                icon={Trash2}
-                                onClick={() => handleDelete(task._id)}
-                                title="Delete task"
-                                loading={deletingId === task._id}
-                            />
+                                {/* Edit */}
+                                <Link
+                                    to={`/dashboard/edit/${task._id}`}
+                                    className="
+                                rounded-lg p-2 text-gray-400
+                                transition hover:bg-gray-100 hover:text-gray-700
+                                "
+                                    title="Edit task"
+                                >
+                                    <Pencil size={17} />
+                                </Link>
+
+                                {/* Delete */}
+                                <Button
+                                    variant="danger"
+                                    size="icon"
+                                    icon={Trash2}
+                                    onClick={() => handleDelete(task._id)}
+                                    title="Delete task"
+                                    loading={deletingId === task._id}
+                                />
+                            </div>
                         </div>
                     ))
                 )}

@@ -15,7 +15,7 @@ const report = [
     },
 ];
 
-function Report() {
+function Report({ onClose }) {
     return (
         <>
             {/* TASKS */}
@@ -28,6 +28,7 @@ function Report() {
                         <NavLink
                             key={report.path}
                             to={report.path}
+                            onClose={onClose}
                             className={({ isActive }) =>
                                 `flex items-center justify-between rounded-lg px-4 py-3 ${isActive ? "bg-gray-200 text-black" : "hover:bg-gray-200"
                                 }`

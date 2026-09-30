@@ -7,6 +7,7 @@ import Button from "@/components/common/Button";
 function EditTask() {
     const { id } = useParams();
     const navigate = useNavigate();
+
     const {
         tasks = [],
         updateTask,
@@ -75,25 +76,43 @@ function EditTask() {
 
     if (error) {
         return (
-            <div className="mx-auto max-w-2xl">
-                <p className="text-red-500">{error}</p>
+            <div className="mx-auto w-full max-w-2xl">
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+                    <p className="text-sm text-red-600">
+                        {error}
+                    </p>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="mx-auto max-w-2xl">
-            <h1 className="mb-6 text-2xl font-bold">
-                Edit Task
-            </h1>
 
+            {/* Header */}
+            <div className="mb-4 sm:mb-5">
+                <h1 className="text-2xl font-bold text-black sm:text-4xl">
+                    Edit Task
+                </h1>
+
+                <p className="mt-1 text-sm text-gray-500">
+                    Update your task information
+                </p>
+            </div>
+
+            {/* Form */}
             <form
                 onSubmit={handleSubmit}
-                className="space-y-5 rounded-xl border border-gray-200 bg-white p-6"
+                className="
+                    space-y-5
+                    rounded-xl border border-gray-200 bg-white
+                    p-4 shadow-sm
+                    sm:p-6
+                "
             >
                 {/* Title */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Title
                     </label>
 
@@ -103,14 +122,19 @@ function EditTask() {
                         value={formData.title}
                         onChange={handleChange}
                         placeholder="Enter task title"
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-gray-500"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                         required
                     />
                 </div>
 
                 {/* Owner */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Owner
                     </label>
 
@@ -120,14 +144,19 @@ function EditTask() {
                         value={formData.owner}
                         onChange={handleChange}
                         placeholder="Enter owner"
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 outline-none focus:border-gray-500"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                         required
                     />
                 </div>
 
                 {/* Status */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Status
                     </label>
 
@@ -135,7 +164,12 @@ function EditTask() {
                         name="status"
                         value={formData.status}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            bg-white px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                     >
                         <option value="Todo">
                             Todo
@@ -153,7 +187,7 @@ function EditTask() {
 
                 {/* Priority */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Priority
                     </label>
 
@@ -161,7 +195,12 @@ function EditTask() {
                         name="priority"
                         value={formData.priority}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            bg-white px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                     >
                         <option value="Low">
                             Low
@@ -179,7 +218,7 @@ function EditTask() {
 
                 {/* Due Date */}
                 <div>
-                    <label className="mb-2 block text-sm font-medium">
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
                         Due Date
                     </label>
 
@@ -188,18 +227,22 @@ function EditTask() {
                         name="dueDate"
                         value={formData.dueDate}
                         onChange={handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                        className="
+                            h-11 w-full rounded-lg border border-gray-300
+                            bg-white px-4 text-sm outline-none
+                            transition focus:border-gray-500 focus:ring-2
+                            focus:ring-gray-100
+                        "
                     />
                 </div>
 
                 {/* Buttons */}
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-3 pt-1 sm:flex-row">
                     <Button
                         type="button"
-                        onClick={() =>
-                            navigate("/dashboard")
-                        }
+                        onClick={() => navigate("/dashboard")}
                         variant="secondary"
+                        className="w-full sm:w-auto"
                     >
                         Cancel
                     </Button>
@@ -207,6 +250,7 @@ function EditTask() {
                     <Button
                         type="submit"
                         loading={loading}
+                        className="w-full sm:w-auto"
                     >
                         Update Task
                     </Button>

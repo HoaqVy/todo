@@ -63,7 +63,7 @@ function UpcomingFeature() {
 
     if (loading) {
         return (
-            <div className="flex min-h-75 items-center justify-center">
+            <div className="flex min-h-60 items-center justify-center sm:min-h-75">
                 <p className="text-sm text-gray-500">
                     Loading tasks...
                 </p>
@@ -72,11 +72,12 @@ function UpcomingFeature() {
     }
 
     return (
-        <div>
+        <div className="w-full min-w-0">
+
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-4xl font-bold text-black">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                    <h1 className="text-2xl font-bold text-black sm:text-4xl">
                         Upcoming
                     </h1>
 
@@ -86,8 +87,9 @@ function UpcomingFeature() {
                 </div>
             </div>
 
+
             {/* Total */}
-            <div className="mt-6">
+            <div className="mt-5 sm:mt-6">
                 <p className="text-sm text-gray-500">
                     {totalUpcoming} upcoming tasks
                 </p>
@@ -95,8 +97,8 @@ function UpcomingFeature() {
 
             {/* Tomorrow */}
             {groupedTasks.tomorrow.length > 0 && (
-                <div className="mt-6">
-                    <h2 className="mb-3 text-lg font-semibold text-gray-900">
+                <section className="mt-5 sm:mt-6">
+                    <h2 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
                         Tomorrow
                     </h2>
 
@@ -105,13 +107,13 @@ function UpcomingFeature() {
                         title="Tomorrow"
                         subtitle="Tasks due tomorrow"
                     />
-                </div>
+                </section>
             )}
 
             {/* This Week */}
             {groupedTasks.thisWeek.length > 0 && (
-                <div className="mt-6">
-                    <h2 className="mb-3 text-lg font-semibold text-gray-900">
+                <section className="mt-5 sm:mt-6">
+                    <h2 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
                         This Week
                     </h2>
 
@@ -120,13 +122,14 @@ function UpcomingFeature() {
                         title="This Week"
                         subtitle="Tasks due later this week"
                     />
-                </div>
+                </section>
             )}
+
 
             {/* Later */}
             {groupedTasks.later.length > 0 && (
-                <div className="mt-6">
-                    <h2 className="mb-3 text-lg font-semibold text-gray-900">
+                <section className="mt-5 sm:mt-6">
+                    <h2 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg">
                         Later
                     </h2>
 
@@ -135,12 +138,13 @@ function UpcomingFeature() {
                         title="Later"
                         subtitle="Tasks scheduled for later"
                     />
-                </div>
+                </section>
             )}
+
 
             {/* Empty */}
             {totalUpcoming === 0 && (
-                <div className="mt-6 rounded-xl border border-gray-200 bg-white p-10 text-center">
+                <div className="mt-5 rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm sm:mt-6 sm:p-10">
                     <p className="text-sm font-medium text-gray-700">
                         No upcoming tasks
                     </p>

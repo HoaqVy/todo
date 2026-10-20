@@ -28,7 +28,7 @@ export function TaskProvider({ children }) {
     } catch (error) {
       console.error("Failed to fetch tasks:", error);
 
-      setError("Failed to load tasks. Please try again.");
+      setError(error.message || "Failed to load tasks. Please try again.");
     } finally {
       setLoading(false);
     }

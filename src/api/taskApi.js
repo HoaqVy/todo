@@ -1,15 +1,26 @@
+
 const API_URL = "http://localhost:5000/api/tasks";
 
-export async function getTasks() {
-  const response = await fetch(API_URL);
+// Xử lý response từ backend
+async function handleResponse(response) {
+  const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error("Failed to fetch tasks");
+    throw new Error(
+      data?.message || "Something went wrong. Please try again."
+    );
   }
 
-  return response.json();
+  return data;
 }
 
+// GET: Lấy danh sách task
+export async function getTasks() {
+  const response = await fetch(API_URL);
+  return handleResponse(response);
+}
+
+// POST: Tạo task
 export async function createTask(taskData) {
   const response = await fetch(API_URL, {
     method: "POST",
@@ -19,34 +30,27 @@ export async function createTask(taskData) {
     body: JSON.stringify(taskData),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to create task");
-  }
-
-  return response.json();
+  return handleResponse(response);
 }
 
+// DELETE: Xóa task
 export async function deleteTask(id) {
   const response = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE"
-  })
-  if (!response.ok) {
-    throw new Error("Failed to delete task")
-  }
-  return response.json()
+    method: "DELETE",
+  });
+
+  return handleResponse(response);
 }
 
+// PUT: Cập nhật task
 export async function updateTask(id, taskData) {
   const response = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(taskData)
-  })
+    body: JSON.stringify(taskData),
+  });
 
-  if (!response.ok) {
-    throw new Error("Failed to update task")
-  }
-  return response.json()
+  return handleResponse(response);
 }

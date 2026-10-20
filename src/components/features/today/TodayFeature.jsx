@@ -3,27 +3,17 @@ import { useTasks } from "@/context/useTasks";
 import { CirclePlus } from "lucide-react";
 import { useMemo } from "react";
 import TaskItem from "../task/TaskItem";
+import { isToday } from "../task/TaskUtils";
 
 function TodayFeature() {
   const { tasks = [], loading } = useTasks()
 
   const todayTasks = useMemo(() => {
-    const today = new Date()
-
-    const year = today.getFullYear()
-    const month = today.getMonth()
-    const date = today.getDate()
-
     return tasks.filter((task) => {
-      if (!task.dueDate) return false
-
-      const dueDate = new Date(task.dueDate)
-
       return (
-        dueDate.getFullYear() === year &&
-        dueDate.getMonth() === month &&
-        dueDate.getDate() === date
-      );
+        task.status !== "Completed" &&
+        isToday(task.dueDate)
+      )
     })
   }, [tasks])
 

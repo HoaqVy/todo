@@ -3,9 +3,11 @@ import { useTasks } from "@/context/useTasks";
 import { useNavigate } from "react-router-dom";
 import Button from "@/components/common/Button";
 import { Undo2 } from "lucide-react";
+import { useToast } from "@/context/ToastContext";
 
 function CreateTask() {
     const { addTask } = useTasks();
+    const { showToast } = useToast()
     const navigate = useNavigate()
 
     const [formData, setFormData] = useState({
@@ -30,15 +32,34 @@ function CreateTask() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Khong gui lai khi dang xu ly
+        if (loading) return
+
+        // kiem tra du lieu
+        if (!formData.title.trim()) {
+            showToast("Please enter a task title.", "error")
+            return
+        }
+
+        if (!formData.owner.trim()) {
+            showToast("Please enter an owner", "error")
+            return
+        }
+
         try {
             setLoading(true)
             await addTask(formData);
 
-            console.log("Task created successfully");
+            showToast("Task created successfully!", "success")
 
             navigate("/dashboard")
         } catch (error) {
             console.error("Failed to create task:", error);
+
+            showToast(
+                error.message || "Failed to create task. Please try again.",
+                "error"
+            );
         } finally {
             setLoading(false)
         }
@@ -189,6 +210,7 @@ function CreateTask() {
                     <Button
                         type="submit"
                         loading={loading}
+                        disabled={loading}
                         className="w-full sm:w-auto"
                     >
                         Create Task

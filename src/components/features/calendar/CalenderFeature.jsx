@@ -2,6 +2,7 @@ import { useTasks } from "@/context/useTasks";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { parseDateOnly } from "../task/TaskUtils";
 
 function CalendarFeature() {
   const { tasks = [], loading } = useTasks();
@@ -58,7 +59,9 @@ function CalendarFeature() {
     return tasks.filter((task) => {
       if (!task.dueDate) return false;
 
-      const dueDate = new Date(task.dueDate);
+      const dueDate = parseDateOnly(task.dueDate)
+
+      if (!dueDate) return false
 
       return (
         dueDate.getFullYear() === year &&

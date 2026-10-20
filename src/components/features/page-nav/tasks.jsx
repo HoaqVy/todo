@@ -7,6 +7,7 @@ import {
   HiOutlineDocument,
 } from "react-icons/hi";
 import { NavLink } from "react-router-dom";
+import { isToday, isUpcoming } from "../task/TaskUtils";
 
 const tasks = [
   {
@@ -41,39 +42,18 @@ const tasks = [
 function Tasks({ onClose }) {
   const { tasks: allTasks = [] } = useTasks()
 
-  const today = new Date()
-
-  const todayStart = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  )
-
-  const tomorrowStart = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() + 1
-  );
-
   const upcomingCount = allTasks.filter((task) => {
-    if (!task.dueDate) return false;
-    if (task.status === "Completed") return false;
-
-    const dueDate = new Date(task.dueDate);
-
-    return dueDate >= tomorrowStart;
+    return (
+      task.status !== "Completed" &&
+      isUpcoming(task.dueDate)
+    )
   }).length;
 
   const todayCount = allTasks.filter((task) => {
-    if (!task.dueDate) return false;
-    if (task.status === "Completed") return false;
-
-    const dueDate = new Date(task.dueDate);
-
     return (
-      dueDate >= todayStart &&
-      dueDate < tomorrowStart
-    );
+      task.status !== "Completed" &&
+      isToday(task.dueDate)
+    )
   }).length;
 
   const getCount = (type) => {

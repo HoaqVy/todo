@@ -1,5 +1,5 @@
-
 import TeamFeature from "@/components/features/Team";
+
 
 function Team() {
     return (

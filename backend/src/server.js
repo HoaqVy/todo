@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import taskRoutes from "./routes/taskRoutes.js";
+import teamMemberRoutes from "./routes/teamMemberRoutes.js"
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 
 
 app.use("/api/tasks", taskRoutes);
+app.use("/api/team-members", teamMemberRoutes)
 
 
 const PORT = process.env.PORT || 5000;

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useTasks } from "@/context/useTasks";
 import TaskItem from "@/components/features/task/TaskItem";
+import { isUpcoming, parseDateOnly } from "../task/TaskUtils";
 
 function UpcomingFeature() {
     const { tasks = [], loading } = useTasks();
@@ -28,14 +29,15 @@ function UpcomingFeature() {
         };
 
         tasks.forEach((task) => {
-            if (!task.dueDate) return;
             if (task.status === "Completed") return;
+            if (!isUpcoming(task.dueDate)) return
 
-            const dueDate = new Date(task.dueDate);
+
+            const dueDate = parseDateOnly(task.dueDate)
+
+            if (!dueDate) return
+
             dueDate.setHours(0, 0, 0, 0);
-
-            // Bỏ task quá hạn và task của hôm nay
-            if (dueDate <= today) return;
 
             if (dueDate.getTime() === tomorrow.getTime()) {
                 result.tomorrow.push(task);
@@ -47,13 +49,12 @@ function UpcomingFeature() {
         });
 
         const sortByDate = (a, b) =>
-            new Date(a.dueDate) - new Date(b.dueDate);
-
+            parseDateOnly(a.dueDate) - parseDateOnly(b.dueDate)
         result.tomorrow.sort(sortByDate);
         result.thisWeek.sort(sortByDate);
         result.later.sort(sortByDate);
 
-        return result;
+        return result
     }, [tasks]);
 
     const totalUpcoming =

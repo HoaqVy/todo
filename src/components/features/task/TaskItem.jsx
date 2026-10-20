@@ -64,7 +64,7 @@ function TaskItem({
         try {
             setDeletingId(id)
             await removeTask(id)
-            showToast("Task deleted successfully")
+            showToast("Task deleted successfully", "success")
         } catch (error) {
             console.error("Failed to delete task:", error);
             showToast("Failed to delete task:", "error")

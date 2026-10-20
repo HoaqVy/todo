@@ -25,53 +25,42 @@ function DashboardFeature() {
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
 
-  // =========================
-  // LOADING
-  // =========================
-
+  // LOADING STATE
   if (loading) {
     return (
       <div className="flex min-h-75 items-center justify-center">
-        <p className="text-sm text-gray-500">Loading tasks...</p>
+        <p className="text-sm text-gray-500">
+          Loading tasks...
+        </p>
       </div>
     );
   }
 
+  // ERROR STATE
   if (error) {
     return (
       <div className="flex min-h-75 items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-gray-900">Unable to load tasks</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Unable to load tasks
+          </h2>
 
-          <p className="mt-2 text-sm text-gray-500">{error}</p>
+          <p className="mt-2 text-sm text-gray-500">
+            {error}
+          </p>
 
           <button
             type="button"
             onClick={fetchTasks}
-            className="mt-4 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800">
+            className="mt-4 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+          >
             Try Again
           </button>
         </div>
       </div>
-    )
+    );
   }
 
-  if (tasks.length === 0) {
-    return (
-      <div className="flex min-h-75 items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-lg font-semibold text-gray-900">No tasks yet</h2>
-
-          <p className="mt-2 text-sm text-gray-500">Create your first task to get started</p>
-
-          <a
-            href="/create-task"
-            className="mt-4 inline-block rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-          >Create Task</a>
-        </div>
-      </div>
-    )
-  }
 
   // =========================
   // FILTER OPTIONS
@@ -133,9 +122,7 @@ function DashboardFeature() {
 
   return (
     <div>
-      {/* =========================
-          HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -155,9 +142,7 @@ function DashboardFeature() {
         />
       </div>
 
-      {/* =========================
-          FILTER
-      ========================= */}
+      {/* FILTER */}
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {/* Search */}
@@ -200,35 +185,65 @@ function DashboardFeature() {
             onClick={handleCleanFilter}
             className="flex h-10 w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 text-sm font-medium text-gray-600 transition hover:bg-gray-100"
             title="Clear filters"
+            aria-label="Clear all filters"
           >
             <Eraser size={18} />
           </button>
         </div>
       </div>
 
-      {/* =========================
-          DASHBOARD CARDS
-      ========================= */}
-      <div className="mt-6">
-        <DashboardCard
-          tasks={filteredTasks}
-        />
-      </div>
+      {/* EMTRY STATE */}
+      {tasks.length === 0 ? (
+        <div className="mt-8 rounded-xl border border-dashed border-gray-300 px-4 py-12 text-center">
+          <h2 className="text-lg font-semibold text-gray-900">
+            No tasks yet
+          </h2>
 
-      {/* =========================
-          OVERVIEW + RECENT TASKS
-      ========================= */}
+          <p className="mt-2 text-sm text-gray-500">
+            Create your first task to get started.
+          </p>
+          <div className="mt-4">
+            <Button
+              href="/create-task"
+              icon={CirclePlus}
+            />
+          </div>
+        </div>
+      ) : filteredTasks.length === 0 ? (
+        // NO FILTER RESULTS
+        <div className="mt-8 rounded-xl border border-gray-200 px-4 py-10 text-center">
+          <h2 className="text-lg font-semibold text-gray-900">
+            No matching tasks
+          </h2>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <TaskOverview
-          tasks={filteredTasks}
-        />
+          <p className="mt-2 text-sm text-gray-500">
+            Try changing your search or filters.
+          </p>
 
-        <TaskItem
-          tasks={filteredTasks}
-        />
-      </div>
-    </div>
+          <button
+            type="button"
+            onClick={handleCleanFilter}
+            className="mt-4 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+          >
+            Clear filters
+          </button>
+        </div>
+      ) : (
+        // DASHBOARD CARDS
+        <>
+          <div className="mt-6">
+            <DashboardCard tasks={filteredTasks} />
+          </div>
+
+          {/* OVERVIEW + RECENT TASKS */}
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <TaskOverview tasks={filteredTasks} />
+
+            <TaskItem tasks={filteredTasks} />
+          </div>
+        </>
+      )}
+    </div >
   );
 }
 

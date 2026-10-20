@@ -3,9 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { useTasks } from "@/context/useTasks";
 import Button from "@/components/common/Button";
+import { toInputDate } from "./TaskUtils";
+import { useToast } from "@/context/ToastContext";
 
 function EditTask() {
     const { id } = useParams();
+    const { showToast } = useToast()
     const navigate = useNavigate();
 
     const {
@@ -39,9 +42,7 @@ function EditTask() {
             owner: task.owner || "",
             status: task.status || "Todo",
             priority: task.priority || "Medium",
-            dueDate: task.dueDate
-                ? task.dueDate.slice(0, 10)
-                : "",
+            dueDate: toInputDate(task.dueDate)
         });
     }, [tasks, id]);
 
@@ -57,22 +58,36 @@ function EditTask() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (loading) return
+
+        if (!formData.title.trim()) {
+            showToast("Please enter a task title.", "error")
+            return
+        }
+
+        if (!formData.owner.trim()) {
+            showToast("Please enter an owner", "error")
+            return
+        }
+
         try {
             setLoading(true)
             await updateTask(id, formData);
 
+            showToast("Task updated successfully!", "success")
             navigate("/dashboard");
         } catch (error) {
-            console.error(
-                "Failed to update task:",
-                error
-            );
+            console.error("Failed to update task:", error);
 
-            setError("Failed to update task");
+            showToast(
+                error.message || "Failed to update task. Please try again.",
+                "error"
+            );
         } finally {
             setLoading(false)
         }
     };
+
 
     if (error) {
         return (

@@ -29,7 +29,12 @@ const teamMemberSchema = new mongoose.Schema(
             type: String,
             enum: ["Active", "Inactive"],
             default: "Active"
-        }
+        },
+        teamId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Team",
+            default: null,
+        },
     },
     {
         timestamps: true,

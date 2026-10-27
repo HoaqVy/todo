@@ -1,4 +1,6 @@
 import Team from "../models/Team.js";
+import Client from "../models/Client.js";
+import TeamMember from "../models/TeamMember.js"
 
 // GET: Lấy danh sách Team
 export const getTeams = async (req, res) => {
@@ -103,23 +105,57 @@ export const updateTeam = async (req, res) => {
     }
 };
 
+
 // DELETE: Xóa Team
 export const deleteTeam = async (req, res) => {
     try {
-        const team = await Team.findByIdAndDelete(req.params.id);
+        // 1. Tìm Team cần xóa
+        const team = await Team.findById(req.params.id);
 
         if (!team) {
             return res.status(404).json({
-                message: "Team not found",
+                message: "Team not found.",
             });
         }
 
-        res.status(200).json({
-            message: "Team deleted successfully",
+        // 2. Kiểm tra Team có thành viên hay không
+        const memberExists = await TeamMember.exists({
+            teamId: team._id,
+        });
+
+        if (memberExists) {
+            return res.status(409).json({
+                message: "Cannot delete this team because it still has members.",
+            });
+        }
+
+
+        // 3. Kiểm tra Team có Client hay không
+        const clientExists = await Client.exists({
+            teamId: team._id,
+        });
+
+        if (clientExists) {
+            return res.status(409).json({
+                message: "Cannot delete this team because it still has clients.",
+            });
+        }
+
+        // 4. Chỉ xóa khi Team không còn thành viên
+        await Team.findByIdAndDelete(team._id);
+
+        return res.status(200).json({
+            message: "Team deleted successfully.",
         });
     } catch (error) {
-        res.status(400).json({
-            message: "Failed to delete team",
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid team ID.",
+            });
+        }
+
+        return res.status(500).json({
+            message: "Failed to delete team.",
         });
     }
 };

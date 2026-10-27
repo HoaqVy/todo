@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import taskRoutes from "./routes/taskRoutes.js";
 import teamMemberRoutes from "./routes/teamMemberRoutes.js"
 import teamRoutes from "./routes/teamRoutes.js";
+import clientRoutes from "./routes/clientRoutes.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.get("/", (req, res) => {
 app.use("/api/tasks", taskRoutes);
 app.use("/api/team-members", teamMemberRoutes)
 app.use("/api/teams", teamRoutes)
+app.use("/api/clients", clientRoutes)
 
 
 const PORT = process.env.PORT || 5000;

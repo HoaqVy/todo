@@ -1,10 +1,28 @@
 
+import Team from "../models/Team.js";
 import TeamMember from "../models/TeamMember.js";
+
+const validateTeam = async (teamId) => {
+    if (teamId === undefined || teamId === null || teamId === "") {
+        return null
+    }
+
+    const team = await Team.findById(teamId)
+
+    if (!team) {
+        const error = new Error("Team not found")
+        error.statusCode = 404
+        throw error
+    }
+    return team._id
+}
 
 // GET: Lấy danh sách thành viên
 export const getTeamMembers = async (req, res) => {
     try {
-        const members = await TeamMember.find().sort({ createdAt: -1 });
+        const members = await TeamMember.find()
+            .populate("teamId", "name status")
+            .sort({ createdAt: -1 });
 
         res.status(200).json(members);
     } catch (error) {
@@ -17,14 +35,17 @@ export const getTeamMembers = async (req, res) => {
 // POST: Thêm thành viên
 export const createTeamMember = async (req, res) => {
     try {
-        const { name, email, position, role, status } = req.body;
+        const { name, email, position, role, status, teamId } = req.body;
+
+        const validTeamId = await validateTeam(teamId)
 
         const member = await TeamMember.create({
             name,
             email,
             position,
             role,
-            status
+            status,
+            teamId: validTeamId
         });
 
         res.status(201).json(member);
@@ -35,10 +56,22 @@ export const createTeamMember = async (req, res) => {
             });
         }
 
+        if (error.statusCode) {
+            return res.status(error.statusCode).json({
+                message: error.message
+            })
+        }
+
         if (error.name === "ValidationError") {
             return res.status(400).json({
                 message: error.message,
             });
+        }
+
+        if (error.name === "CastError") {
+            return res.status(400).json({
+                message: "Invalid Team ID"
+            })
         }
 
         res.status(500).json({
@@ -48,16 +81,30 @@ export const createTeamMember = async (req, res) => {
 };
 
 // PUT: Cập nhật thành viên
+
 export const updateTeamMember = async (req, res) => {
     try {
-        const { name, email, position, role, status } = req.body;
+        const { name, email, position, role, status, teamId } = req.body;
+
+        const updateData = {
+            name,
+            email,
+            position,
+            role,
+            status,
+        };
+
+        // Chỉ cập nhật teamId khi request thực sự gửi trường này
+        if (Object.hasOwn(req.body, "teamId")) {
+            updateData.teamId = await validateTeam(teamId);
+        }
 
         const member = await TeamMember.findByIdAndUpdate(
             req.params.id,
-            { name, email, position, role, status },
+            updateData,
             {
                 runValidators: true,
-                returnDocument: "after"
+                returnDocument: "after",
             }
         );
 
@@ -75,6 +122,12 @@ export const updateTeamMember = async (req, res) => {
             });
         }
 
+        if (error.statusCode) {
+            return res.status(error.statusCode).json({
+                message: error.message,
+            });
+        }
+
         if (error.name === "ValidationError") {
             return res.status(400).json({
                 message: error.message,
@@ -82,8 +135,12 @@ export const updateTeamMember = async (req, res) => {
         }
 
         if (error.name === "CastError") {
+            console.error("CastError details:", error);
+
             return res.status(400).json({
-                message: "Invalid team member ID.",
+                message: "Invalid ID.",
+                field: error.path,
+                value: error.value,
             });
         }
 
@@ -92,6 +149,7 @@ export const updateTeamMember = async (req, res) => {
         });
     }
 };
+
 
 // DELETE: Xóa thành viên
 export const deleteTeamMember = async (req, res) => {

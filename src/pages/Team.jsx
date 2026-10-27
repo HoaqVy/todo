@@ -1,4 +1,4 @@
-import TeamFeature from "@/components/features/Team";
+import TeamFeature from "@/components/features/team";
 
 
 function Team() {

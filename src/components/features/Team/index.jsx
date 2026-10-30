@@ -9,6 +9,7 @@ import {
     deleteTeamMember
 } from "@/api/teamMemberApi"
 import TeamMemberCard from "./TeamMemberCard";
+import TeamList from "./TeamList";
 
 
 function TeamFeature() {
@@ -156,7 +157,7 @@ function TeamFeature() {
 
         fetchMembers();
     }, []);
-    
+
     useEffect(() => {
         if (!successMessage) return;
 
@@ -194,6 +195,8 @@ function TeamFeature() {
                     Add Member
                 </button>
             </div>
+
+            <TeamList />
 
             {successMessage && (
                 <div role="status"

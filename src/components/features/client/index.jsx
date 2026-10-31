@@ -1,7 +1,9 @@
-function ClientFeature () {
+import ClientList from "./ClientList"
+
+function ClientFeature() {
     return (
         <div>
-            <h2>Client Feature</h2>
+            <ClientList />
         </div>
     )
 }

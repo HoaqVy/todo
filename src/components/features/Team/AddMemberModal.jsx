@@ -7,7 +7,8 @@ const initialForm = {
     email: "",
     position: "",
     role: "Member",
-    status: "Active"
+    status: "Active",
+    teamId: ""
 };
 
 function AddMemberModal({
@@ -15,6 +16,7 @@ function AddMemberModal({
     onAdd,
     onUpdate,
     member = null,
+    selectedTeam = null
 }) {
     const [formData, setFormData] = useState(initialForm);
     const [errors, setErrors] = useState({});
@@ -30,15 +32,19 @@ function AddMemberModal({
                 email: member.email ?? "",
                 position: member.position ?? "",
                 role: member.role ?? "Member",
-                status: member.status ?? "Active"
+                status: member.status ?? "Active",
+                teamId: member.teamId?._id ?? member.teamId ?? ""
             });
         } else {
-            setFormData(initialForm);
+            setFormData({
+                ...initialForm,
+                teamId: selectedTeam?._id ?? ""
+            });
         }
 
         setErrors({});
-        setSubmitError("")
-    }, [member]);
+        setSubmitError("");
+    }, [member, selectedTeam]);
 
     const isEditing = Boolean(member);
 
@@ -93,7 +99,8 @@ function AddMemberModal({
             email,
             position,
             role: formData.role,
-            status: formData.status
+            status: formData.status,
+            teamId: formData.teamId || null
         };
 
         setIsSubmitting(true)

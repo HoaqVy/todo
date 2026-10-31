@@ -17,6 +17,7 @@ function TeamFeature() {
     const [members, setMembers] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+    const [selectedTeam, setSelectedTeam] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All")
@@ -37,16 +38,20 @@ function TeamFeature() {
                     member.status ?? "Active"
                 ].some((value) =>
                     value.toLowerCase().includes(keyword)
-                )
+                );
 
-            const status = member.status ?? "Active"
+            const status = member.status ?? "Active";
 
-            const matchesStatus = statusFilter === "All" || status === statusFilter
-            return matchesSearch && matchesStatus
-        }
+            const matchesStatus =
+                statusFilter === "All" || status === statusFilter;
 
-        );
-    }, [members, search, statusFilter]);
+            const matchesTeam =
+                !selectedTeam ||
+                member.teamId?._id === selectedTeam._id;
+
+            return matchesSearch && matchesStatus && matchesTeam;
+        });
+    }, [members, search, statusFilter, selectedTeam]);
 
     const activeMembers = members.filter(
         (member) => (member.status ?? "Active") === "Active"
@@ -55,18 +60,24 @@ function TeamFeature() {
     const inactiveMembers = members.filter(
         (member) => (member.status ?? "Active") === "Inactive"
     ).length;
-
     const handleAddMember = async (memberData) => {
         try {
             setError("");
             setSuccessMessage("");
 
-            const createdMember = await createTeamMember(memberData);
+            // Bước 1: Tạo Member mới
+            await createTeamMember(memberData);
 
-            setMembers((prevMembers) => [
-                { ...createdMember, id: createdMember._id },
-                ...prevMembers,
-            ]);
+            // Bước 2: Lấy lại danh sách Member từ Backend
+            const data = await getTeamMembers();
+
+            // Bước 3: Cập nhật danh sách trên giao diện
+            setMembers(
+                data.map((member) => ({
+                    ...member,
+                    id: member._id
+                }))
+            );
 
             setSuccessMessage("Team member added successfully!");
         } catch (err) {
@@ -196,7 +207,26 @@ function TeamFeature() {
                 </button>
             </div>
 
-            <TeamList />
+            <TeamList
+                selectedTeam={selectedTeam}
+                onSelectTeam={setSelectedTeam}
+            />
+
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        {selectedTeam
+                            ? `Team Members - ${selectedTeam.name}`
+                            : "All Team Members"}
+                    </h2>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        {selectedTeam
+                            ? `Members of ${selectedTeam.name}`
+                            : "Manage all team members"}
+                    </p>
+                </div>
+            </div>
 
             {successMessage && (
                 <div role="status"
@@ -320,6 +350,7 @@ function TeamFeature() {
             {(isModalOpen || editingMember) && (
                 <AddMemberModal
                     member={editingMember}
+                    selectedTeam={selectedTeam}
                     onClose={() => {
                         setIsModalOpen(false)
                         setEditingMember(null)

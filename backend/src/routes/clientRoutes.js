@@ -7,8 +7,13 @@ import {
     updateClient,
     deleteClient,
 } from "../controllers/clientController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import authorizeRole from "../middleware/authorizeRole.js";
+
 
 const router = express.Router();
+router.use(authMiddleware);
+router.use(authorizeRole("Admin"));
 
 // GET: Lấy danh sách Client
 router.get("/", getClients);

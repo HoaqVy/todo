@@ -1,8 +1,11 @@
 import express from "express";
 import { createTeam, deleteTeam, getTeamById, getTeams, updateTeam } from "../controllers/teamController.js";
-
+import authMiddleware from "../middleware/authMiddleware.js";
+import authorizeRole from "../middleware/authorizeRole.js";
 
 const router = express.Router()
+router.use(authMiddleware);
+router.use(authorizeRole("Admin"));
 
 // GET: lấy danh sách Team
 router.get("/", getTeams)

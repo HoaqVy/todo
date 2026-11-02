@@ -6,6 +6,7 @@ import taskRoutes from "./routes/taskRoutes.js";
 import teamMemberRoutes from "./routes/teamMemberRoutes.js"
 import teamRoutes from "./routes/teamRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
+import authRoutes from "./routes/authRoutes.js"
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/team-members", teamMemberRoutes)
 app.use("/api/teams", teamRoutes)
 app.use("/api/clients", clientRoutes)
+app.use("/api/auth", authRoutes)
 
 
 const PORT = process.env.PORT || 5000;

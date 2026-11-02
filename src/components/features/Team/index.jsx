@@ -1,6 +1,5 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, UserPlus, Users } from "lucide-react";
 import AddMemberModal from "./AddMemberModal";
 import {
     getTeamMembers,
@@ -8,13 +7,20 @@ import {
     updateTeamMember,
     deleteTeamMember
 } from "@/api/teamMemberApi"
-import TeamMemberCard from "./TeamMemberCard";
 import TeamList from "./TeamList";
+import { getClients } from "@/api/clientApi";
+import AssignedClients from "./components/AssignedClients";
+import TeamStatistics from "./components/TeamStatistics";
+import TeamMemberFilters from "./components/TeamMemberFilters";
+import TeamMemberList from "./components/TeamMemberList";
+import TeamPageHeader from "./components/TeamPageHeader";
+import TeamMemberSectionHeader from "./components/TeamMemberSectionHeader";
 
 
 function TeamFeature() {
 
     const [members, setMembers] = useState([])
+    const [clients, setClients] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [selectedTeam, setSelectedTeam] = useState(null)
@@ -45,14 +51,33 @@ function TeamFeature() {
             const matchesStatus =
                 statusFilter === "All" || status === statusFilter;
 
+            const memberTeamId =
+                typeof member.teamId === "object"
+                    ? member.teamId?._id
+                    : member.teamId;
+
             const matchesTeam =
                 !selectedTeam ||
-                member.teamId?._id === selectedTeam._id;
+                String(memberTeamId) === String(selectedTeam._id);
 
             return matchesSearch && matchesStatus && matchesTeam;
         });
     }, [members, search, statusFilter, selectedTeam]);
 
+    const assignedClients = useMemo(() => {
+        if (!selectedTeam) {
+            return [];
+        }
+
+        return clients.filter((client) => {
+            const clientTeamId =
+                typeof client.teamId === "object"
+                    ? client.teamId?._id
+                    : client.teamId;
+
+            return String(clientTeamId) === String(selectedTeam._id);
+        });
+    }, [clients, selectedTeam]);
     const activeMembers = members.filter(
         (member) => (member.status ?? "Active") === "Active"
     ).length;
@@ -60,6 +85,7 @@ function TeamFeature() {
     const inactiveMembers = members.filter(
         (member) => (member.status ?? "Active") === "Inactive"
     ).length;
+
     const handleAddMember = async (memberData) => {
         try {
             setError("");
@@ -86,7 +112,6 @@ function TeamFeature() {
         }
     };
 
-
     const handleEditMember = (member) => {
         setEditingMember(member);
     };
@@ -106,6 +131,8 @@ function TeamFeature() {
         try {
             setDeletingMemberId(memberId)
             setError("")
+            setSuccessMessage("")
+
             await deleteTeamMember(memberId);
 
             setMembers((prevMembers) =>
@@ -151,8 +178,6 @@ function TeamFeature() {
                 setError("");
 
                 const data = await getTeamMembers();
-                console.log("Team members from API:", data);
-
                 setMembers(
                     data.map((member) => ({
                         ...member,
@@ -179,54 +204,35 @@ function TeamFeature() {
         return () => clearTimeout(timer);
     }, [successMessage]);
 
+    useEffect(() => {
+        const fetchClients = async () => {
+            try {
+                const data = await getClients()
+                setClients(data)
+            } catch (err) {
+                console.error("Failed to fetch clients:", err);
+
+            }
+        }
+        fetchClients()
+    }, [])
+
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-black sm:text-4xl">
-                        Team
-                    </h1>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                        Manage your team members and their information.
-                    </p>
-                </div>
-
-                <button
-                    type="button"
-                    onClick={() => {
-                        setIsModalOpen(true)
-                        setEditingMember(null)
-                    }
-                    }
-                    className="flex items-center justify-center gap-2 rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
-                >
-                    <UserPlus size={18} />
-                    Add Member
-                </button>
-            </div>
+            <TeamPageHeader
+                onAddMember={() => {
+                    setIsModalOpen(true)
+                    setEditingMember(null)
+                }}
+            />
 
             <TeamList
                 selectedTeam={selectedTeam}
                 onSelectTeam={setSelectedTeam}
             />
 
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
-                        {selectedTeam
-                            ? `Team Members - ${selectedTeam.name}`
-                            : "All Team Members"}
-                    </h2>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                        {selectedTeam
-                            ? `Members of ${selectedTeam.name}`
-                            : "Manage all team members"}
-                    </p>
-                </div>
-            </div>
+            <TeamMemberSectionHeader selectedTeam={selectedTeam} />
 
             {successMessage && (
                 <div role="status"
@@ -236,117 +242,31 @@ function TeamFeature() {
             )}
 
             {/* Statistics */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-gray-100 p-3">
-                            <Users size={22} className="text-gray-700" />
-                        </div>
-
-                        <div>
-                            <p className="text-sm text-gray-500">
-                                Total Members
-                            </p>
-
-                            <p className="mt-1 text-2xl font-bold text-gray-900">
-                                {members.length}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
-                    <p className="text-sm text-gray-500">Active Members</p>
-                    <p className="mt-2 text-2xl font-bold text-green-600">
-                        {activeMembers}
-                    </p>
-                </div>
-
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
-                    <p className="text-sm text-gray-500">Inactive Members</p>
-                    <p className="mt-2 text-2xl font-bold text-gray-500">
-                        {inactiveMembers}
-                    </p>
-                </div>
-            </div>
+            <TeamStatistics
+                totalMembers={members.length}
+                activeMembers={activeMembers}
+                inactiveMembers={inactiveMembers}
+            />
             {/* Search and Status Filter */}
-            <div className="flex flex-col gap-3 sm:flex-row">
-                <div className="relative max-w-md flex-1">
-                    <Search
-                        size={18}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                    />
+            <TeamMemberFilters
+                search={search}
+                setSearch={setSearch}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                onReset={handleResetFilters}
+            />
 
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search name, email or position..."
-                        aria-label="Search team members"
-                        className="h-11 w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-gray-500"
-                    />
-                </div>
+            <TeamMemberList
+                loading={loading}
+                error={error}
+                members={filteredMembers}
+                onEdit={handleEditMember}
+                onDelete={handleDeleteMember}
+                deletingMemberId={deletingMemberId}
+            />
+            {/* Assigned Clients */}
+            <AssignedClients selectedTeam={selectedTeam} clients={assignedClients} />
 
-                <select
-                    value={statusFilter}
-                    onChange={(event) => setStatusFilter(event.target.value)}
-                    aria-label="Filter members by status"
-                    className="h-11 rounded-lg border border-gray-300 bg-white px-3 text-sm outline-none focus:border-gray-500"
-                >
-                    <option value="All">All statuses</option>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                </select>
-                <button
-                    type="button"
-                    onClick={handleResetFilters}
-                    disabled={!search && statusFilter === "All"}
-                    className="h-11 rounded-lg border border-gray-300 px-4 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                    Clear Filters
-                </button>
-            </div>
-
-            {loading && (
-                <p className="text-sm text-gray-500">
-                    Loading team members...
-                </p>
-            )}
-
-            {error && (
-                <div
-                    role="alert"
-                    className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"
-                >
-                    {error}
-                </div>
-            )}
-
-            {/* Member list */}
-            {!loading &&
-                (filteredMembers.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {filteredMembers.map((member) => (
-                            <TeamMemberCard
-                                key={member.id}
-                                member={member}
-                                onEdit={handleEditMember}
-                                onDelete={handleDeleteMember}
-                                isDeleting={deletingMemberId === member.id}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="rounded-xl border border-dashed border-gray-300 px-4 py-12 text-center">
-                        <h2 className="text-lg font-semibold text-gray-900">
-                            No members found
-                        </h2>
-
-                        <p className="mt-2 text-sm text-gray-500">
-                            Try another name, email or position.
-                        </p>
-                    </div>
-                ))}
             {(isModalOpen || editingMember) && (
                 <AddMemberModal
                     member={editingMember}

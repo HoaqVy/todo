@@ -1,8 +1,8 @@
 
 import Tasks from "../features/page-nav/tasks";
-import Report from "../features/page-nav/report";
-import Tags from "../features/page-nav/tags";
 import UserMenu from "../features/page-nav/userName";
+import Management from "../features/page-nav/management";
+import Workspace from "../features/page-nav/workSpace";
 
 function Navbar({ onClose }) {
   return (
@@ -14,8 +14,8 @@ function Navbar({ onClose }) {
         </h1>
       </div>
       <Tasks onClose={onClose} />
-      <Report onClose={onClose} />
-      <Tags />
+      <Management onClose={onClose} />
+      <Workspace onClose={onClose} />
       <UserMenu />
     </div>
   );

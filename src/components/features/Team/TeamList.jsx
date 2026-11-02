@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { getTeams, createTeam, updateTeam, deleteTeam } from "@/api/teamApi";
 import AddTeamModal from "./AddTeamModal";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Users } from "lucide-react";
 
 function TeamList({ selectedTeam, onSelectTeam }) {
     const [teams, setTeams] = useState([]);
@@ -89,8 +89,8 @@ function TeamList({ selectedTeam, onSelectTeam }) {
                         type="button"
                         onClick={() => onSelectTeam(null)}
                         className={`rounded-lg px-4 py-2 text-sm font-medium transition ${!selectedTeam
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                             }`}
                     >
                         All Teams
@@ -161,9 +161,17 @@ function TeamList({ selectedTeam, onSelectTeam }) {
                     ))}
                 </div>
             ) : (
-                <p className="text-sm text-gray-500">
-                    No teams found.
-                </p>
+                <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
+                    <Users size={28} className="mx-auto text-gray-400" />
+
+                    <h3 className="mt-3 font-semibold text-gray-900">
+                        No Team Member
+                    </h3>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                        This team doesn't have any teams yet.
+                    </p>
+                </div>
             )}
 
             {isModalOpen && (

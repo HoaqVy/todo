@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { getTeams } from "@/api/teamApi";
 
 const initialForm = {
     name: "",
@@ -22,6 +23,7 @@ function AddMemberModal({
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitError, setSubmitError] = useState("")
+    const [teams, setTeams] = useState([])
 
 
     // Nếu có member, điền thông tin để chỉnh sửa
@@ -46,6 +48,18 @@ function AddMemberModal({
         setSubmitError("");
     }, [member, selectedTeam]);
 
+    useEffect(() => {
+        const fetchTeams = async () => {
+            try {
+                const data = await getTeams();
+                setTeams(data);
+            } catch (error) {
+                console.error("Failed to fetch teams:", error);
+            }
+        };
+
+        fetchTeams();
+    }, []);
     const isEditing = Boolean(member);
 
     const handleChange = (event) => {
@@ -266,6 +280,32 @@ function AddMemberModal({
                                 {errors.position}
                             </p>
                         )}
+                    </div>
+
+                    {/* Team */}
+                    <div>
+                        <label
+                            htmlFor="member-team"
+                            className="text-sm font-medium text-gray-700"
+                        >
+                            Team
+                        </label>
+
+                        <select
+                            id="member-team"
+                            name="teamId"
+                            value={formData.teamId}
+                            onChange={handleChange}
+                            className={inputClassName}
+                        >
+                            <option value="">No Team</option>
+
+                            {teams.map((team) => (
+                                <option key={team._id} value={team._id}>
+                                    {team.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     {/* Role */}

@@ -16,16 +16,26 @@ async function handleResponse(response) {
 
 // GET: Lấy danh sách task
 export async function getTasks() {
-  const response = await fetch(API_URL);
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(API_URL, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
   return handleResponse(response);
 }
 
 // POST: Tạo task
 export async function createTask(taskData) {
+  const token = localStorage.getItem("token");
   const response = await fetch(API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(taskData),
   });
@@ -35,8 +45,12 @@ export async function createTask(taskData) {
 
 // DELETE: Xóa task
 export async function deleteTask(id) {
+  const token = localStorage.getItem("token");
   const response = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 
   return handleResponse(response);
@@ -44,10 +58,12 @@ export async function deleteTask(id) {
 
 // PUT: Cập nhật task
 export async function updateTask(id, taskData) {
+  const token = localStorage.getItem("token");
   const response = await fetch(`${API_URL}/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(taskData),
   });

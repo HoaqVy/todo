@@ -4,15 +4,17 @@ import { useNavigate } from "react-router-dom";
 import Button from "@/components/common/Button";
 import { Undo2 } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 
 function CreateTask() {
     const { addTask } = useTasks();
+    const { user } = useAuth()
     const { showToast } = useToast()
     const navigate = useNavigate()
 
     const [formData, setFormData] = useState({
         title: "",
-        owner: "",
+        owner: user?.name || "",
         status: "Todo",
         priority: "Medium",
         dueDate: "",
@@ -125,14 +127,9 @@ function CreateTask() {
                         type="text"
                         name="owner"
                         value={formData.owner}
-                        onChange={handleChange}
-                        placeholder="Enter owner"
-                        className="
-                            h-11 w-full rounded-lg border border-gray-300
-                            px-4 text-sm outline-none
-                            transition focus:border-gray-500 focus:ring-2
-                            focus:ring-gray-100
-                        "
+                        readOnly
+                        placeholder="Your name"
+                        className="h-11 w-full rounded-lg border border-gray-300 bg-gray-100 px-4 text-sm text-gray-600 outline-none cursor-not-allowed"
                         required
                     />
                 </div>

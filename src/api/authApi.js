@@ -5,9 +5,13 @@ async function handleResponsee(response) {
     const data = await response.json().catch(() => null)
 
     if (!response.ok) {
-        throw new Error(
+        const error = new Error(
             data?.message || "Authentication failed"
-        )
+        );
+
+        error.status = response.status;
+
+        throw error;
     }
     return data
 }

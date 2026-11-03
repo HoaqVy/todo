@@ -15,7 +15,7 @@ import TeamMemberFilters from "./components/TeamMemberFilters";
 import TeamMemberList from "./components/TeamMemberList";
 import TeamPageHeader from "./components/TeamPageHeader";
 import TeamMemberSectionHeader from "./components/TeamMemberSectionHeader";
-
+import AssignClientModal from "./components/AssignClientModal";
 
 function TeamFeature() {
 
@@ -30,6 +30,8 @@ function TeamFeature() {
     const [editingMember, setEditingMember] = useState(null);
     const [deletingMemberId, setDeletingMemberId] = useState(null)
     const [successMessage, setSuccessMessage] = useState("")
+
+    const [isAssignClientOpen, setIsAssignClientOpen] = useState(false);
 
     const filteredMembers = useMemo(() => {
         const keyword = search.trim().toLowerCase();
@@ -265,7 +267,11 @@ function TeamFeature() {
                 deletingMemberId={deletingMemberId}
             />
             {/* Assigned Clients */}
-            <AssignedClients selectedTeam={selectedTeam} clients={assignedClients} />
+            <AssignedClients
+                selectedTeam={selectedTeam}
+                clients={assignedClients}
+                onAssignClient={() => setIsAssignClientOpen(true)}
+            />
 
             {(isModalOpen || editingMember) && (
                 <AddMemberModal

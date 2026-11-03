@@ -14,7 +14,14 @@ import {
   Settings,
 } from "lucide-react";
 
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 function UserMenu() {
+
+  const { logout } = useAuth()
+  const navigate = useNavigate()
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -43,7 +50,11 @@ function UserMenu() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            logout()
+            navigate("/login")
+          }}>
           <LogOutIcon />
           Sign Out
         </DropdownMenuItem>

@@ -1,6 +1,7 @@
 import { FaRegUserCircle } from "react-icons/fa";
 import { RiTeamFill } from "react-icons/ri";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 
 const management = [
     {
@@ -16,6 +17,7 @@ const management = [
 ];
 
 function Management({ onClose }) {
+    const { user } = useAuth()
     return (
         <>
             {/* TASKS */}
@@ -24,7 +26,7 @@ function Management({ onClose }) {
                     Management
                 </h2>
                 <div className="space-y-2">
-                    {management.map((management) => (
+                    {user?.role === "Admin" && management.map((management) => (
                         <NavLink
                             key={management.path}
                             to={management.path}
@@ -39,6 +41,7 @@ function Management({ onClose }) {
                                 <span className="font-medium">{management.title}</span>
                             </div>
                         </NavLink>
+
                     ))}
                 </div>
             </div>

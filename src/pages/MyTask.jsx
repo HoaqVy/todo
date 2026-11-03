@@ -1,8 +1,8 @@
-import MyTasks from "@/components/features/work-space";
+import MyTasksFeature from "@/components/features/work-space";
 
 function Dashboard() {
     return (
-        <MyTasks />
+        <MyTasksFeature />
     );
 }
 export default Dashboard;

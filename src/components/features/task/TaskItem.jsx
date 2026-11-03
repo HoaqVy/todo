@@ -9,7 +9,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function TaskItem({
     tasks = [],
@@ -20,6 +20,7 @@ function TaskItem({
     const { removeTask } = useTasks()
     const { showToast } = useToast()
     const [deletingId, setDeletingId] = useState(null)
+    const location = useLocation();
 
     const getStatusIcon = (status) => {
         switch (status) {
@@ -153,10 +154,8 @@ function TaskItem({
                                 {/* Edit */}
                                 <Link
                                     to={`/dashboard/edit/${task._id}`}
-                                    className="
-                                rounded-lg p-2 text-gray-400
-                                transition hover:bg-gray-100 hover:text-gray-700
-                                "
+                                    state={{ from: location.pathname }}
+                                    className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
                                     title="Edit task"
                                 >
                                     <Pencil size={17} />

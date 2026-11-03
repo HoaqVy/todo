@@ -1,20 +1,32 @@
 
-import { Mail, Phone, Users } from "lucide-react";
+import { Mail, Phone, UserPlus, Users } from "lucide-react";
 
-function AssignedClients({ selectedTeam, clients }) {
+function AssignedClients({ selectedTeam, clients, onAssignClient }) {
     if (!selectedTeam) return null;
 
     return (
         <div className="space-y-4">
             {/* Header */}
-            <div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                    Assigned Clients
-                </h2>
+            {/* Header */}
+            <div className="flex items-center justify-between gap-4">
+                <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                        Assigned Clients
+                    </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
-                    Clients assigned to {selectedTeam.name}
-                </p>
+                    <p className="mt-1 text-sm text-gray-500">
+                        Clients assigned to {selectedTeam.name}
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={onAssignClient}
+                    className="flex shrink-0 items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                >
+                    <UserPlus size={16} />
+                    Assign Client
+                </button>
             </div>
 
             <p className="text-sm text-gray-500">
@@ -61,8 +73,8 @@ function AssignedClients({ selectedTeam, clients }) {
 
                                 <span
                                     className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${client.status === "Inactive"
-                                            ? "bg-gray-100 text-gray-600"
-                                            : "bg-green-50 text-green-700"
+                                        ? "bg-gray-100 text-gray-600"
+                                        : "bg-green-50 text-green-700"
                                         }`}
                                 >
                                     {client.status ?? "Active"}

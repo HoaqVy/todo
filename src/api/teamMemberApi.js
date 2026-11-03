@@ -15,16 +15,26 @@ async function handleResponse(response) {
 
 // GET: Lấy danh sách thành viên
 export async function getTeamMembers() {
-    const response = await fetch(API_URL);
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(API_URL, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
     return handleResponse(response);
 }
 
 // POST: Thêm thành viên
 export async function createTeamMember(memberData) {
+    const token = localStorage.getItem("token");
+
     const response = await fetch(API_URL, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(memberData),
     });
@@ -34,10 +44,13 @@ export async function createTeamMember(memberData) {
 
 // PUT: Cập nhật thành viên
 export async function updateTeamMember(id, memberData) {
+    const token = localStorage.getItem("token");
+
     const response = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(memberData),
     });
@@ -47,8 +60,13 @@ export async function updateTeamMember(id, memberData) {
 
 // DELETE: Xóa thành viên
 export async function deleteTeamMember(id) {
+    const token = localStorage.getItem("token");
+
     const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
     });
 
     return handleResponse(response);

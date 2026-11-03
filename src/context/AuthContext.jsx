@@ -40,10 +40,15 @@ export function AuthProvider({ children }) {
             try {
                 const data = await getCurrentUser(token);
                 setUser(data.user);
-            } catch {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-                setUser(null);
+            } catch (error) {
+                console.error("AUTH CHECK ERROR:", error);
+
+                // Chi dang xuat khi token khong hop le
+                if (error.status === 401) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    setUser(null);
+                }
             } finally {
                 setIsLoading(false);
             }

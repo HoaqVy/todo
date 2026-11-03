@@ -1,6 +1,5 @@
-
-import { ListChecks } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { ListChecks } from "lucide-react";
 
 const workspaceItems = [
     {
@@ -12,33 +11,34 @@ const workspaceItems = [
 
 function Workspace({ onClose }) {
     return (
-        <div className="mt-8 border-t border-gray-200 pt-6">
-            <h2 className="mb-6 text-sm font-bold tracking-wider text-gray-500 uppercase">
+        <div className="mb-6">
+            <h2 className="mb-4 px-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
                 Workspace
             </h2>
 
-            <div className="space-y-2">
-                {workspaceItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        onClick={onClose}
-                        className={({ isActive }) =>
-                            `flex items-center rounded-lg px-4 py-3 transition ${isActive
-                                ? "bg-gray-200 text-black"
-                                : "text-gray-600 hover:bg-gray-200 hover:text-black"
-                            }`
-                        }
-                    >
-                        <div className="flex items-center gap-3">
-                            <item.icon size={20} />
-                            <span className="font-medium">
-                                {item.title}
-                            </span>
-                        </div>
-                    </NavLink>
-                ))}
-            </div>
+            <nav className="space-y-2">
+                {workspaceItems.map((item) => {
+                    const Icon = item.icon;
+
+                    return (
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            onClick={onClose}
+                            className={({ isActive }) =>
+                                `flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition
+                                ${isActive
+                                    ? "bg-gray-200 font-medium text-black"
+                                    : "text-gray-600 hover:bg-gray-100 hover:text-black"
+                                }`
+                            }
+                        >
+                            <Icon size={20} />
+                            <span>{item.title}</span>
+                        </NavLink>
+                    );
+                })}
+            </nav>
         </div>
     );
 }

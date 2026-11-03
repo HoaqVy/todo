@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import { useTasks } from "@/context/useTasks";
 import Button from "@/components/common/Button";
@@ -10,6 +10,10 @@ function EditTask() {
     const { id } = useParams();
     const { showToast } = useToast()
     const navigate = useNavigate();
+
+    const location = useLocation();
+
+    const returnTo = location.state?.from || "/dashboard";
 
     const {
         tasks = [],
@@ -75,7 +79,7 @@ function EditTask() {
             await updateTask(id, formData);
 
             showToast("Task updated successfully!", "success")
-            navigate("/dashboard");
+            navigate(returnTo);
         } catch (error) {
             console.error("Failed to update task:", error);
 
@@ -255,7 +259,7 @@ function EditTask() {
                 <div className="flex flex-col gap-3 pt-1 sm:flex-row">
                     <Button
                         type="button"
-                        onClick={() => navigate("/dashboard")}
+                        onClick={() => navigate(returnTo)}
                         variant="secondary"
                         className="w-full sm:w-auto"
                     >

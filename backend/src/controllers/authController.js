@@ -104,7 +104,8 @@ export const login = async (req, res) => {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                mustChangePassword: user.mustChangePassword
             }
         })
     } catch (error) {
@@ -139,3 +140,60 @@ export const getCurrentUser = async (req, res) => {
         )
     }
 }
+
+
+// CHANGE PASSWORD
+export const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        // 1. Kiểm tra dữ liệu đầu vào
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                message: "Please provide current password and new password."
+            });
+        }
+
+        // 2. Kiểm tra độ dài mật khẩu mới
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                message: "New password must be at least 6 characters."
+            });
+        }
+
+        // 3. Tìm User đang đăng nhập
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found."
+            });
+        }
+
+        // 4. Kiểm tra mật khẩu hiện tại
+        const isPasswordValid = await user.comparePassword(currentPassword);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                message: "Current password is incorrect."
+            });
+        }
+
+        // 5. Cập nhật mật khẩu mới
+        user.password = newPassword;
+        user.mustChangePassword = false;
+
+        await user.save();
+
+        return res.status(200).json({
+            message: "Password changed successfully."
+        });
+
+    } catch (error) {
+        console.error("Change password error:", error);
+
+        return res.status(500).json({
+            message: "Failed to change password."
+        });
+    }
+};

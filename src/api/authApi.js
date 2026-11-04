@@ -52,3 +52,20 @@ export async function getCurrentUser(token) {
 
     return handleResponsee(response)
 }
+
+
+// CHANGE PASSWORD
+export async function changePassword(passwordData) {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/change-password`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(passwordData)
+    });
+
+    return handleResponsee(response);
+}

@@ -26,7 +26,7 @@ const teamSchema = new mongoose.Schema(
         }
     },
     {
-        timeseries: true
+        timestamps: true
     }
 )
 

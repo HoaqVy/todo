@@ -39,7 +39,9 @@ export function AuthProvider({ children }) {
 
             try {
                 const data = await getCurrentUser(token);
+
                 setUser(data.user);
+                localStorage.setItem("user", JSON.stringify(data.user));
             } catch (error) {
                 console.error("AUTH CHECK ERROR:", error);
 

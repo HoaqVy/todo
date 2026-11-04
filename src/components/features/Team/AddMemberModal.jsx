@@ -9,7 +9,8 @@ const initialForm = {
     position: "",
     role: "Member",
     status: "Active",
-    teamId: ""
+    teamId: "",
+    password: ""
 };
 
 function AddMemberModal({
@@ -97,6 +98,12 @@ function AddMemberModal({
             nextErrors.email = "Please enter a valid email.";
         }
 
+        if (!isEditing && !formData.password.trim()) {
+            nextErrors.password = "Password is required";
+        } else if (!isEditing && formData.password.length < 6) {
+            nextErrors.password = "Password must be at least 6 characters";
+        }
+
         // Validate Position
         if (!position) {
             nextErrors.position = "Position is required.";
@@ -114,7 +121,8 @@ function AddMemberModal({
             position,
             role: formData.role,
             status: formData.status,
-            teamId: formData.teamId || null
+            teamId: formData.teamId || null,
+            ...(!isEditing && { password: formData.password })
         };
 
         setIsSubmitting(true)
@@ -254,6 +262,29 @@ function AddMemberModal({
                             </p>
                         )}
                     </div>
+
+                    {!isEditing && (
+                        <div>
+                            <label className="mb-1 block text-sm font-medium">
+                                Initial Password
+                            </label>
+
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter initial password"
+                                className="w-full rounded-lg border px-3 py-2"
+                            />
+
+                            {errors.password && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.password}
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     {/* Position */}
                     <div>

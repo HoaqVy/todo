@@ -37,9 +37,11 @@ function LoginFeature() {
 
             login(data.user, data.token);
 
-            alert("Login successfully!");
-
-            navigate("/dashboard");
+            if (data.user.mustChangePassword) {
+                navigate("/change-password");
+            } else {
+                navigate("/dashboard");
+            }
 
         } catch (error) {
             setError(error.message);

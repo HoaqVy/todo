@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema(
             type: String,
             enum: ["Admin", "Member"],
             default: "Member"
+        },
+        mustChangePassword: {
+            type: Boolean,
+            default: false
         }
     },
     {

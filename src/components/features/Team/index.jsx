@@ -8,7 +8,7 @@ import {
     deleteTeamMember
 } from "@/api/teamMemberApi"
 import TeamList from "./TeamList";
-import { getClients } from "@/api/clientApi";
+import { getClients, updateClient } from "@/api/clientApi";
 import AssignedClients from "./components/AssignedClients";
 import TeamStatistics from "./components/TeamStatistics";
 import TeamMemberFilters from "./components/TeamMemberFilters";
@@ -80,6 +80,20 @@ function TeamFeature() {
             return String(clientTeamId) === String(selectedTeam._id);
         });
     }, [clients, selectedTeam]);
+
+    const availableClients = useMemo(() => {
+        if (!selectedTeam) return [];
+
+        return clients.filter((client) => {
+            const clientTeamId =
+                typeof client.teamId === "object"
+                    ? client.teamId?._id
+                    : client.teamId;
+
+            return String(clientTeamId ?? "") !== String(selectedTeam._id);
+        });
+    }, [clients, selectedTeam]);
+
     const activeMembers = members.filter(
         (member) => (member.status ?? "Active") === "Active"
     ).length;
@@ -219,6 +233,27 @@ function TeamFeature() {
         fetchClients()
     }, [])
 
+    const handleAssignClient = async (clientId) => {
+        try {
+            const client = clients.find(
+                (item) => item._id === clientId
+            );
+
+            if (!client || !selectedTeam) return;
+
+            await updateClient(clientId, {
+                teamId: selectedTeam._id
+            });
+
+            const data = await getClients();
+            setClients(data);
+
+            setIsAssignClientOpen(false);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -272,6 +307,15 @@ function TeamFeature() {
                 clients={assignedClients}
                 onAssignClient={() => setIsAssignClientOpen(true)}
             />
+
+            {isAssignClientOpen && selectedTeam && (
+                <AssignClientModal
+                    selectedTeam={selectedTeam}
+                    clients={availableClients}
+                    onClose={() => setIsAssignClientOpen(false)}
+                    onAssign={handleAssignClient}
+                />
+            )}
 
             {(isModalOpen || editingMember) && (
                 <AddMemberModal

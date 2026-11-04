@@ -1,6 +1,8 @@
 
+import mongoose from "mongoose";
 import Team from "../models/Team.js";
 import TeamMember from "../models/TeamMember.js";
+import User from "../models/User.js";
 
 const validateTeam = async (teamId) => {
     if (teamId === undefined || teamId === null || teamId === "") {
@@ -32,53 +34,145 @@ export const getTeamMembers = async (req, res) => {
     }
 };
 
+
 // POST: Thêm thành viên
 export const createTeamMember = async (req, res) => {
+    let session;
+
     try {
-        const { name, email, position, role, status, teamId } = req.body;
-
-        const validTeamId = await validateTeam(teamId)
-
-        const member = await TeamMember.create({
+        const {
             name,
             email,
+            password,
+            position,
+            role,
+            status,
+            teamId
+        } = req.body;
+
+        // 1. Kiểm tra Email
+        if (!email || typeof email !== "string" || !email.trim()) {
+            return res.status(400).json({
+                message: "Email is required."
+            });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // 2. Kiểm tra User đã tồn tại chưa
+        const existingUser = await User.findOne({
+            email: normalizedEmail
+        });
+
+        // 3. Kiểm tra Team ID
+        const validTeamId = await validateTeam(teamId);
+
+        // 4. Kiểm tra TeamMember đã tồn tại chưa
+        const existingMember = await TeamMember.findOne({
+            email: normalizedEmail
+        });
+
+        if (existingMember) {
+            // Member đã thuộc một Team
+            if (existingMember.teamId) {
+                if (
+                    validTeamId &&
+                    existingMember.teamId.toString() !== validTeamId.toString()
+                ) {
+                    return res.status(409).json({
+                        message: "This user already belongs to another team."
+                    });
+                }
+
+                return res.status(409).json({
+                    message: "This user is already a member of this team."
+                });
+            }
+
+            // Member đã có profile nhưng chưa được gán Team
+            return res.status(409).json({
+                message: "This email already has a team member profile."
+            });
+        }
+
+        // 5. Nếu User chưa tồn tại thì bắt buộc phải có Password
+        if (!existingUser && (!password || password.length < 6)) {
+            return res.status(400).json({
+                message: "Password must be at least 6 characters."
+            });
+        }
+
+        // 6. Bắt đầu MongoDB Transaction
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        // 7. Nếu chưa có User thì tạo tài khoản mới
+        if (!existingUser) {
+            await User.create([{
+                name,
+                email: normalizedEmail,
+                password,
+                role: "Member",
+                mustChangePassword: true
+            }], { session });
+        }
+
+        // 8. Tạo TeamMember
+        const [member] = await TeamMember.create([{
+            name,
+            email: normalizedEmail,
             position,
             role,
             status,
             teamId: validTeamId
-        });
+        }], { session });
 
-        res.status(201).json(member);
+        // 9. Hoàn tất Transaction
+        await session.commitTransaction();
+
+        return res.status(201).json(member);
+
     } catch (error) {
+        // Rollback nếu Transaction chưa hoàn tất
+        if (session?.inTransaction()) {
+            await session.abortTransaction();
+        }
+
         if (error.code === 11000) {
             return res.status(409).json({
-                message: "This email already exists.",
+                message: "This email already exists."
             });
         }
 
         if (error.statusCode) {
             return res.status(error.statusCode).json({
                 message: error.message
-            })
+            });
         }
 
         if (error.name === "ValidationError") {
             return res.status(400).json({
-                message: error.message,
+                message: error.message
             });
         }
 
         if (error.name === "CastError") {
             return res.status(400).json({
                 message: "Invalid Team ID"
-            })
+            });
         }
 
-        res.status(500).json({
-            message: "Failed to create team member.",
+        return res.status(500).json({
+            message: "Failed to create team member."
         });
+
+    } finally {
+        if (session) {
+            await session.endSession();
+        }
     }
 };
+
 
 // PUT: Cập nhật thành viên
 

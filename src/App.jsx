@@ -17,6 +17,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/features/auth/ProtectedRoute";
 import AdminRoute from "./components/features/auth/AdminRoute";
+import ChangePassword from "./components/features/auth/ChangePassword";
 
 function App() {
   return (
@@ -26,6 +27,13 @@ function App() {
 
 
       <Route element={<ProtectedRoute />}>
+        <Route
+          path="/change-password"
+          element={<ChangePassword />}
+        />
+
+        <Route element={<Layout />}></Route>
+
         <Route element={<Layout />} >
 
           <Route path="/" element={<Home />} />

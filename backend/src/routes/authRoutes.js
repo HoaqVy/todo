@@ -4,7 +4,8 @@ import {
     getCurrentUser,
     login,
     register,
-    changePassword
+    changePassword,
+    updateProfile
 } from "../controllers/authController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -19,6 +20,9 @@ router.post("/login", login);
 
 // GET CURRENT USER
 router.get("/me", authMiddleware, getCurrentUser);
+
+// UPDATE PROFILE
+router.put("/profile", authMiddleware, updateProfile);
 
 // CHANGE PASSWORD
 router.put("/change-password", authMiddleware, changePassword);

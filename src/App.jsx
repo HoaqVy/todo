@@ -18,6 +18,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/features/auth/ProtectedRoute";
 import AdminRoute from "./components/features/auth/AdminRoute";
 import ChangePassword from "./components/features/auth/ChangePassword";
+import MyProfile from "./pages/MyProfile";
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
           <Route path="/create-task" element={<CreateTask />} />
           <Route path="/dashboard/edit/:id" element={<EditTask />} />
           <Route path="/my-tasks" element={<MyTasks />} />
+          <Route path="/my-profile" element={<MyProfile />} />
         </Route>
       </Route>
     </Routes>

@@ -1,6 +1,9 @@
 import Team from "../models/Team.js";
 import Client from "../models/Client.js";
 import TeamMember from "../models/TeamMember.js"
+import Note from "../models/Note.js";
+import mongoose from "mongoose";
+
 
 // GET: Lấy danh sách Team
 export const getTeams = async (req, res) => {
@@ -105,57 +108,77 @@ export const updateTeam = async (req, res) => {
     }
 };
 
-
-// DELETE: Xóa Team
+// DELETE: Giải thể Team
 export const deleteTeam = async (req, res) => {
+    let session;
+
     try {
-        // 1. Tìm Team cần xóa
-        const team = await Team.findById(req.params.id);
+        // 1. Start Transaction
+        session = await mongoose.startSession();
+        session.startTransaction();
+
+        // 2. Find Team
+        const team = await Team.findById(req.params.id).session(session);
 
         if (!team) {
+            await session.abortTransaction();
+
             return res.status(404).json({
                 message: "Team not found.",
             });
         }
 
-        // 2. Kiểm tra Team có thành viên hay không
-        const memberExists = await TeamMember.exists({
+        // 3. Delete all Team Members
+        await TeamMember.deleteMany({
             teamId: team._id,
-        });
+        }, { session });
 
-        if (memberExists) {
-            return res.status(409).json({
-                message: "Cannot delete this team because it still has members.",
-            });
-        }
+        // 4. Keep Clients but remove Team assignment
+        await Client.updateMany(
+            { teamId: team._id },
+            { $set: { teamId: null } },
+            { session }
+        );
 
-
-        // 3. Kiểm tra Team có Client hay không
-        const clientExists = await Client.exists({
+        // 5. Delete Team Notes only
+        await Note.deleteMany({
+            type: "Team",
             teamId: team._id,
-        });
+        }, { session });
 
-        if (clientExists) {
-            return res.status(409).json({
-                message: "Cannot delete this team because it still has clients.",
-            });
-        }
+        // 6. Delete Team
+        await Team.deleteOne({
+            _id: team._id,
+        }, { session });
 
-        // 4. Chỉ xóa khi Team không còn thành viên
-        await Team.findByIdAndDelete(team._id);
+        // 7. Commit Transaction
+        await session.commitTransaction();
 
         return res.status(200).json({
             message: "Team deleted successfully.",
         });
+
     } catch (error) {
+        // Rollback if something fails
+        if (session?.inTransaction()) {
+            await session.abortTransaction();
+        }
+
         if (error.name === "CastError") {
             return res.status(400).json({
                 message: "Invalid team ID.",
             });
         }
 
+        console.error("DELETE TEAM ERROR:", error);
+
         return res.status(500).json({
             message: "Failed to delete team.",
         });
+
+    } finally {
+        if (session) {
+            await session.endSession();
+        }
     }
 };

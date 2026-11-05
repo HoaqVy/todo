@@ -1,6 +1,25 @@
 
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import TeamMember from "../models/TeamMember.js";
+
+// GET USER TEAM INFORMATION
+const getUserTeamInfo = async (email) => {
+    const teamMember = await TeamMember.findOne({
+        email: email.toLowerCase()
+    }).populate("teamId", "name");
+
+    if (!teamMember) {
+        return null;
+    }
+
+    return {
+        teamId: teamMember.teamId?._id || null,
+        teamName: teamMember.teamId?.name || null,
+        teamRole: teamMember.role,
+        status: teamMember.status
+    };
+};
 
 // REGISTER
 export const register = async (req, res) => {
@@ -92,11 +111,13 @@ export const login = async (req, res) => {
         }
 
         //Generate JWT 
+        const teamInfo = await getUserTeamInfo(user.email);
         const token = jwt.sign(
             { userId: user._id, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: "1d" }
         )
+
         return res.status(200).json({
             message: "Login successful",
             token,
@@ -105,13 +126,14 @@ export const login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                mustChangePassword: user.mustChangePassword
+                mustChangePassword: user.mustChangePassword,
+                teamInfo
             }
         })
     } catch (error) {
         console.error("Login error:", error);
 
-        return res, status(500).json({
+        return res.status(500).json({
             message: "Failed to login"
         })
 
@@ -129,9 +151,14 @@ export const getCurrentUser = async (req, res) => {
             })
         }
 
+        const teamInfo = await getUserTeamInfo(user.email);
+
         return res.status(200).json({
-            user
-        })
+            user: {
+                ...user.toObject(),
+                teamInfo
+            }
+        });
     } catch (error) {
         console.error("Get current user error:", error);
 
@@ -140,6 +167,64 @@ export const getCurrentUser = async (req, res) => {
         )
     }
 }
+
+
+// UPDATE PROFILE
+export const updateProfile = async (req, res) => {
+    try {
+        const { name } = req.body;
+
+        // 1. Validate name
+        if (!name || !name.trim()) {
+            return res.status(400).json({
+                message: "Name is required."
+            });
+        }
+
+        // 2. Find logged-in User
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found."
+            });
+        }
+
+        // 3. Update User name
+        user.name = name.trim();
+
+        await user.save();
+
+        // 4. Sync TeamMember name using email
+        await TeamMember.findOneAndUpdate(
+            { email: user.email },
+            { name: user.name }
+        );
+
+        // 5. Get updated Team information
+        const teamInfo = await getUserTeamInfo(user.email);
+
+        // 6. Return updated information
+        return res.status(200).json({
+            message: "Profile updated successfully.",
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                mustChangePassword: user.mustChangePassword,
+                teamInfo
+            }
+        });
+
+    } catch (error) {
+        console.error("Update profile error:", error);
+
+        return res.status(500).json({
+            message: "Failed to update profile."
+        });
+    }
+};
 
 
 // CHANGE PASSWORD

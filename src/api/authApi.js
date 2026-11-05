@@ -69,3 +69,19 @@ export async function changePassword(passwordData) {
 
     return handleResponsee(response);
 }
+
+
+export async function updateProfile(profileData) {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(`${API_URL}/profile`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileData),
+    });
+
+    return handleResponsee(response);
+}

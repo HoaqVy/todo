@@ -176,71 +176,170 @@ export const createTeamMember = async (req, res) => {
 
 // PUT: Cập nhật thành viên
 
+
 export const updateTeamMember = async (req, res) => {
+    let session;
+
     try {
-        const { name, email, position, role, status, teamId } = req.body;
+        // 1. Bắt đầu MongoDB Transaction
+        session = await mongoose.startSession();
+        session.startTransaction();
 
-        const updateData = {
-            name,
-            email,
-            position,
-            role,
-            status,
-        };
-
-        // Chỉ cập nhật teamId khi request thực sự gửi trường này
-        if (Object.hasOwn(req.body, "teamId")) {
-            updateData.teamId = await validateTeam(teamId);
-        }
-
-        const member = await TeamMember.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            {
-                runValidators: true,
-                returnDocument: "after",
-            }
-        );
+        // 2. Tìm TeamMember cần cập nhật
+        const member = await TeamMember.findById(req.params.id).session(session);
 
         if (!member) {
+            await session.abortTransaction();
+
             return res.status(404).json({
-                message: "Team member not found.",
+                message: "Team member not found."
             });
         }
 
-        res.status(200).json(member);
+        // 3. Tìm User tương ứng bằng email hiện tại
+        const user = await User.findOne({
+            email: member.email
+        }).session(session);
+
+        if (!user) {
+            await session.abortTransaction();
+
+            return res.status(404).json({
+                message: "User account associated with this team member was not found."
+            });
+        }
+
+        // 4. Lấy dữ liệu cập nhật
+        const { name, email, position, role, status, teamId } = req.body;
+
+        // 5. Chuẩn hóa email mới nếu request có gửi email
+        const normalizedEmail = Object.hasOwn(req.body, "email")
+            ? email?.trim().toLowerCase()
+            : member.email;
+
+        // 6. Kiểm tra email hợp lệ
+        if (!normalizedEmail) {
+            await session.abortTransaction();
+
+            return res.status(400).json({
+                message: "Email is required."
+            });
+        }
+
+        // 7. Kiểm tra email mới có thuộc User khác không
+        const existingUser = await User.findOne({
+            email: normalizedEmail,
+            _id: { $ne: user._id }
+        }).session(session);
+
+        if (existingUser) {
+            await session.abortTransaction();
+
+            return res.status(409).json({
+                message: "This email already belongs to another user."
+            });
+        }
+
+        // 8. Kiểm tra email mới có thuộc TeamMember khác không
+        const existingMember = await TeamMember.findOne({
+            email: normalizedEmail,
+            _id: { $ne: member._id }
+        }).session(session);
+
+        if (existingMember) {
+            await session.abortTransaction();
+
+            return res.status(409).json({
+                message: "This email already belongs to another team member."
+            });
+        }
+
+        // 9. Cập nhật tên và email cho User
+        if (Object.hasOwn(req.body, "name")) {
+            user.name = name;
+        }
+
+        user.email = normalizedEmail;
+
+        // 10. Cập nhật tên và email cho TeamMember
+        if (Object.hasOwn(req.body, "name")) {
+            member.name = name;
+        }
+
+        member.email = normalizedEmail;
+
+        // 11. Cập nhật các thông tin riêng của TeamMember
+        if (Object.hasOwn(req.body, "position")) {
+            member.position = position;
+        }
+
+        if (Object.hasOwn(req.body, "role")) {
+            member.role = role;
+        }
+
+        if (Object.hasOwn(req.body, "status")) {
+            member.status = status;
+        }
+
+        if (Object.hasOwn(req.body, "teamId")) {
+            member.teamId = await validateTeam(teamId);
+        }
+
+        // 12. Lưu cả hai document trong cùng Transaction
+        await user.save({ session });
+        await member.save({ session });
+
+        // 13. Hoàn tất Transaction
+        await session.commitTransaction();
+
+        // 14. Trả về TeamMember đã cập nhật
+        return res.status(200).json(member);
+
     } catch (error) {
+        // 15. Rollback nếu Transaction chưa hoàn tất
+        if (session?.inTransaction()) {
+            await session.abortTransaction();
+        }
+
+        // 16. Xử lý lỗi email trùng
         if (error.code === 11000) {
             return res.status(409).json({
-                message: "This email already exists.",
+                message: "This email already exists."
             });
         }
 
+        // 17. Xử lý lỗi từ validateTeam
         if (error.statusCode) {
             return res.status(error.statusCode).json({
-                message: error.message,
+                message: error.message
             });
         }
 
+        // 18. Xử lý lỗi validation của Mongoose
         if (error.name === "ValidationError") {
             return res.status(400).json({
-                message: error.message,
+                message: error.message
             });
         }
 
+        // 19. Xử lý ID không hợp lệ
         if (error.name === "CastError") {
-            console.error("CastError details:", error);
-
             return res.status(400).json({
                 message: "Invalid ID.",
                 field: error.path,
-                value: error.value,
+                value: error.value
             });
         }
 
-        res.status(500).json({
-            message: "Failed to update team member.",
+        console.error("Update TeamMember error:", error);
+
+        return res.status(500).json({
+            message: "Failed to update team member."
         });
+    } finally {
+        if (session) {
+            await session.endSession();
+        }
     }
 };
 

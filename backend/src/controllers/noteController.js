@@ -1,7 +1,6 @@
 import User from "../models/User.js";
 import TeamMember from "../models/TeamMember.js";
 import Note from "../models/Note.js";
-import Team from "../models/Team.js";
 
 // Find the TeamMember profile of the logged-in user
 const getUserTeam = async (userId) => {
@@ -19,54 +18,41 @@ const getUserTeam = async (userId) => {
     return teamMember;
 };
 
-// Get all notes
 export const getNotes = async (req, res) => {
     try {
-        let notes;
+        // 1. Tìm TeamMember của User đang đăng nhập
+        const teamMember = await getUserTeam(req.user.userId);
 
-        if (req.user.role === "Admin") {
-            notes = await Note.find({
-                $or: [
-                    {
-                        type: "Personal",
-                        createdBy: req.user.userId
-                    },
-                    {
-                        type: "Team"
-                    }
-                ]
-            })
-                .populate("createdBy", "name email")
-                .populate("teamId", "name")
-                .sort({ isPinned: -1, createdAt: -1 });
-        } else {
-            const teamMember = await getUserTeam(req.user.userId);
-
-            const teamId = teamMember?.teamId || null;
-
-            const noteFilter = [
-                {
-                    type: "Personal",
-                    createdBy: req.user.userId
-                }
-            ];
-
-            if (teamId) {
-                noteFilter.push({
-                    type: "Team",
-                    teamId: teamId
-                });
+        // 2. Tạo điều kiện lấy Personal Notes của chính User
+        const noteFilter = [
+            {
+                type: "Personal",
+                createdBy: req.user.userId
             }
+        ];
 
-            notes = await Note.find({
-                $or: noteFilter
-            })
-                .populate("createdBy", "name email")
-                .populate("teamId", "name")
-                .sort({ isPinned: -1, createdAt: -1 });
+        // 3. Nếu User thuộc một Team,
+        // chỉ lấy Team Notes của Team đó
+        if (teamMember?.teamId) {
+            noteFilter.push({
+                type: "Team",
+                teamId: teamMember.teamId
+            });
         }
 
+        // 4. Lấy Notes
+        const notes = await Note.find({
+            $or: noteFilter
+        })
+            .populate("createdBy", "name email")
+            .populate("teamId", "name")
+            .sort({
+                isPinned: -1,
+                createdAt: -1
+            });
+
         return res.status(200).json(notes);
+
     } catch (error) {
         return res.status(500).json({
             message: "Failed to fetch notes",
@@ -96,33 +82,15 @@ export const createNote = async (req, res) => {
         let noteTeamId = null;
 
         if (type === "Team") {
-            if (req.user.role !== "Admin") {
-                const teamMember = await getUserTeam(req.user.userId);
+            const teamMember = await getUserTeam(req.user.userId);
 
-                if (!teamMember || !teamMember.teamId) {
-                    return res.status(403).json({
-                        message: "You are not assigned to a team"
-                    });
-                }
-
-                noteTeamId = teamMember.teamId;
-            } else {
-                if (!teamId) {
-                    return res.status(400).json({
-                        message: "Team ID is required"
-                    });
-                }
-
-                const team = await Team.findById(teamId);
-
-                if (!team) {
-                    return res.status(404).json({
-                        message: "Team not found"
-                    });
-                }
-
-                noteTeamId = team._id;
+            if (!teamMember || !teamMember.teamId) {
+                return res.status(403).json({
+                    message: "You are not assigned to a team"
+                });
             }
+
+            noteTeamId = teamMember.teamId;
         } else if (type !== "Personal" && type !== undefined) {
             return res.status(400).json({
                 message: "Invalid note type"
@@ -169,12 +137,22 @@ export const updateNote = async (req, res) => {
         const isOwner =
             note.createdBy.toString() === req.user.userId;
 
-        const isAdmin = req.user.role === "Admin";
+        let canUpdate = false;
 
-        const canUpdate =
-            note.type === "Team"
-                ? isAdmin || isOwner
-                : isOwner;
+        if (note.type === "Personal") {
+            canUpdate = isOwner;
+        } else if (note.type === "Team") {
+            const teamMember = await getUserTeam(req.user.userId);
+
+            const isSameTeam =
+                teamMember?.teamId &&
+                teamMember.teamId.toString() === note.teamId?.toString();
+
+            const isTeamAdmin = teamMember?.role === "Admin";
+
+            canUpdate =
+                isSameTeam && (isOwner || isTeamAdmin);
+        }
 
         if (!canUpdate) {
             return res.status(403).json({
@@ -228,16 +206,25 @@ export const deleteNote = async (req, res) => {
         }
 
         // Check permission
-        // Check permission
         const isOwner =
             note.createdBy.toString() === req.user.userId;
 
-        const isAdmin = req.user.role === "Admin";
+        let canDelete = false;
 
-        const canDelete =
-            note.type === "Team"
-                ? isAdmin || isOwner
-                : isOwner;
+        if (note.type === "Personal") {
+            canDelete = isOwner;
+        } else if (note.type === "Team") {
+            const teamMember = await getUserTeam(req.user.userId);
+
+            const isSameTeam =
+                teamMember?.teamId &&
+                teamMember.teamId.toString() === note.teamId?.toString();
+
+            const isTeamAdmin = teamMember?.role === "Admin";
+
+            canDelete =
+                isSameTeam && (isOwner || isTeamAdmin);
+        }
 
         if (!canDelete) {
             return res.status(403).json({

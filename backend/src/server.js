@@ -80,6 +80,9 @@ import clientRoutes from "./routes/clientRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import noteRoutes from "./routes/noteRoutes.js";
 
+
+const { verifyEmailConnection } = await import("./services/emailService.js");
+
 const app = express();
 
 app.use(cors());
@@ -117,23 +120,32 @@ app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
 
 // Start local server only
+// if (process.env.NODE_ENV !== "production") {
+//     const PORT = process.env.PORT || 5000;
+
+//     app.listen(PORT, async () => {
+//         console.log(`Server running on http://localhost:${PORT}`);
+
+//         try {
+//             const { default: transporter } = await import(
+//                 "./services/emailService.js"
+//             );
+
+//             await transporter.verify();
+//             console.log("Gmail SMTP connection successful!");
+//         } catch (error) {
+//             console.error("Gmail SMTP connection failed:", error.message);
+//         }
+//     });
+// }
+
 if (process.env.NODE_ENV !== "production") {
     const PORT = process.env.PORT || 5000;
 
-    app.listen(PORT, async () => {
+    app.listen(PORT, () => {
         console.log(`Server running on http://localhost:${PORT}`);
-
-        try {
-            const { default: transporter } = await import(
-                "./services/emailService.js"
-            );
-
-            await transporter.verify();
-            console.log("Gmail SMTP connection successful!");
-        } catch (error) {
-            console.error("Gmail SMTP connection failed:", error.message);
-        }
     });
+    await verifyEmailConnection();
 }
 
 export default app;

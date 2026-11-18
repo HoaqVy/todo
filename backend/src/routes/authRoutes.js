@@ -8,7 +8,9 @@ import {
     updateProfile,
     forgotPassword,
     verifyOTP,
-    resetPassword
+    resetPassword,
+    verifyEmail,
+    resendVerificationEmail
 } from "../controllers/authController.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -17,6 +19,12 @@ const router = express.Router();
 
 // REGISTER
 router.post("/register", register);
+
+// VERIFY EMAIL
+router.get("/verify-email", verifyEmail);
+
+//RESEND VERIFY EMAIL
+router.post("/resend-verification", resendVerificationEmail);
 
 // LOGIN
 router.post("/login", login);

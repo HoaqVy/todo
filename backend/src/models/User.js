@@ -32,6 +32,21 @@ const userSchema = new mongoose.Schema(
         mustChangePassword: {
             type: Boolean,
             default: false
+        },
+        // Email verification
+        emailVerified: {
+            type: Boolean,
+            default: true
+        },
+
+        emailVerificationToken: {
+            type: String,
+            default: null
+        },
+
+        emailVerificationExpires: {
+            type: Date,
+            default: null
         }
     },
     {

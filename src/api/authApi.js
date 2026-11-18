@@ -1,6 +1,7 @@
 import API_BASE_URL from "./apiConfig";
 
 const API_URL = `${API_BASE_URL}/api/auth`;
+
 //Xử lý response từ BE
 async function handleResponsee(response) {
     const data = await response.json().catch(() => null)
@@ -54,7 +55,6 @@ export async function getCurrentUser(token) {
     return handleResponsee(response)
 }
 
-
 // CHANGE PASSWORD
 export async function changePassword(passwordData) {
     const token = localStorage.getItem("token");
@@ -71,7 +71,7 @@ export async function changePassword(passwordData) {
     return handleResponsee(response);
 }
 
-
+//UPDATE PROFILE
 export async function updateProfile(profileData) {
     const token = localStorage.getItem("token");
 
@@ -86,7 +86,6 @@ export async function updateProfile(profileData) {
 
     return handleResponsee(response);
 }
-
 
 // FORGOT PASSWORD
 export async function forgotPassword(email) {
@@ -131,3 +130,31 @@ export async function resetPassword(email, resetToken, newPassword) {
     return handleResponsee(response);
 }
 
+// VERIFY EMAIL
+export async function verifyEmail(token) {
+    const response = await fetch(
+        `${API_URL}/verify-email?token=${encodeURIComponent(token)}`,
+        {
+            method: "GET"
+        }
+    );
+
+    return handleResponsee(response);
+}
+
+
+// RESEND VERIFICATION EMAIL
+export async function resendVerificationEmail(email) {
+    const response = await fetch(
+        `${API_URL}/resend-verification`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email })
+        }
+    );
+
+    return handleResponsee(response);
+}

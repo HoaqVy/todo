@@ -39,6 +39,18 @@ const hashOTP = (otp) => {
         .digest("hex");
 };
 
+// GENERATE EMAIL VERIFICATION TOKEN
+const generateEmailVerificationToken = () => {
+    return crypto.randomBytes(32).toString("hex");
+};
+
+// HASH EMAIL VERIFICATION TOKEN
+const hashVerificationToken = (token) => {
+    return crypto
+        .createHash("sha256")
+        .update(token)
+        .digest("hex");
+};
 
 // FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
@@ -106,7 +118,6 @@ export const forgotPassword = async (req, res) => {
         });
     }
 };
-
 
 
 // VERIFY OTP
@@ -290,30 +301,29 @@ export const resetPassword = async (req, res) => {
     }
 };
 
-
-
 // REGISTER
 export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Check required fields
+        // 1. Validate required fields
         if (!name || !email || !password) {
             return res.status(400).json({
                 message: "Please provide name, email and password."
             });
         }
 
-        // Check password length
         if (password.length < 6) {
             return res.status(400).json({
                 message: "Password must be at least 6 characters."
             });
         }
 
-        // Check existing email
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // 2. Check existing email
         const existingUser = await User.findOne({
-            email: email.trim().toLowerCase()
+            email: normalizedEmail
         });
 
         if (existingUser) {
@@ -322,21 +332,80 @@ export const register = async (req, res) => {
             });
         }
 
-        // Create new user
+        // 3. Generate verification token
+        const verificationToken = generateEmailVerificationToken();
+
+        const hashedToken = hashVerificationToken(
+            verificationToken
+        );
+
+        // 4. Create unverified user
         const user = await User.create({
-            name,
-            email,
-            password
+            name: name.trim(),
+            email: normalizedEmail,
+            password,
+            emailVerified: false,
+            emailVerificationToken: hashedToken,
+            emailVerificationExpires: new Date(
+                Date.now() + 24 * 60 * 60 * 1000
+            )
+        });
+
+        // 5. Create verification link
+        const frontendUrl = process.env.FRONTEND_URL;
+
+        if (!frontendUrl) {
+            throw new Error("FRONTEND_URL is not configured.");
+        }
+
+        const verificationLink =
+            `${frontendUrl}/verify-email?token=${verificationToken}`;
+
+        // 6. Send verification email
+        await transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to: normalizedEmail,
+            subject: "Todo App - Verify Your Email",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <h2>Welcome to Todo App!</h2>
+
+                    <p>Hello ${user.name},</p>
+
+                    <p>
+                        Thank you for registering.
+                        Please verify your email address
+                        to activate your account.
+                    </p>
+
+                    <a
+                        href="${verificationLink}"
+                        style="
+                            display: inline-block;
+                            padding: 12px 24px;
+                            background-color: #4f46e5;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 6px;
+                        "
+                    >
+                        Verify Email
+                    </a>
+
+                    <p>
+                        This verification link expires in 24 hours.
+                    </p>
+
+                    <p>
+                        If you did not create this account,
+                        please ignore this email.
+                    </p>
+                </div>
+            `
         });
 
         return res.status(201).json({
-            message: "Account registered successfully.",
-            user: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            }
+            message: "Registration successful. Please check your email to verify your account."
         });
 
     } catch (error) {
@@ -344,6 +413,153 @@ export const register = async (req, res) => {
 
         return res.status(500).json({
             message: "Failed to register account."
+        });
+    }
+};
+
+
+// VERIFY EMAIL
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        // 1. Validate token
+        if (!token) {
+            return res.status(400).json({
+                message: "Verification token is required."
+            });
+        }
+
+        // 2. Hash submitted token
+        const hashedToken = hashVerificationToken(token);
+
+        // 3. Find user with valid token
+        const user = await User.findOne({
+            emailVerificationToken: hashedToken,
+            emailVerificationExpires: {
+                $gt: new Date()
+            },
+            emailVerified: false
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Invalid or expired verification link."
+            });
+        }
+
+        // 4. Activate email
+        user.emailVerified = true;
+
+        // 5. Remove verification token
+        user.emailVerificationToken = null;
+        user.emailVerificationExpires = null;
+
+        await user.save();
+
+        return res.status(200).json({
+            message: "Email verified successfully. You can now login."
+        });
+
+    } catch (error) {
+        console.error("Verify email error:", error);
+
+        return res.status(500).json({
+            message: "Failed to verify email."
+        });
+    }
+};
+
+
+// RESEND VERIFICATION EMAIL
+export const resendVerificationEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is required."
+            });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const user = await User.findOne({
+            email: normalizedEmail
+        });
+
+        // Use the same response to avoid revealing account status
+        const successMessage =
+            "If your account requires verification, a new email will be sent.";
+
+        if (!user || user.emailVerified) {
+            return res.status(200).json({
+                message: successMessage
+            });
+        }
+
+        // Generate a new verification token
+        const verificationToken =
+            generateEmailVerificationToken();
+
+        user.emailVerificationToken =
+            hashVerificationToken(verificationToken);
+
+        user.emailVerificationExpires = new Date(
+            Date.now() + 24 * 60 * 60 * 1000
+        );
+
+        await user.save();
+
+        const frontendUrl = process.env.FRONTEND_URL;
+
+        if (!frontendUrl) {
+            throw new Error("FRONTEND_URL is not configured.");
+        }
+
+        const verificationLink =
+            `${frontendUrl}/verify-email?token=${verificationToken}`;
+
+        await transporter.sendMail({
+            from: process.env.SMTP_USER,
+            to: normalizedEmail,
+            subject: "Todo App - Verify Your Email",
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+                    <h2>Verify Your Email</h2>
+
+                    <p>Hello ${user.name},</p>
+
+                    <p>Please click the button below to verify your email address.</p>
+
+                    <a
+                        href="${verificationLink}"
+                        style="
+                            display: inline-block;
+                            padding: 12px 24px;
+                            background-color: #4f46e5;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 6px;
+                        "
+                    >
+                        Verify Email
+                    </a>
+
+                    <p>This link expires in 24 hours.</p>
+                </div>
+            `
+        });
+
+        return res.status(200).json({
+            message: successMessage
+        });
+
+    } catch (error) {
+        console.error("Resend verification error:", error);
+
+        return res.status(500).json({
+            message: "Failed to resend verification email."
         });
     }
 };
@@ -378,6 +594,13 @@ export const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 message: "Invalid email or password"
+            })
+        }
+
+        // CHECK EMAIL VERIFICATION
+        if (!user.emailVerified) {
+            return res.status(403).json({
+                message: "Please verify your email before logging in."
             })
         }
 

@@ -22,11 +22,16 @@ import MyProfile from "./pages/MyProfile";
 import ForgotPassword from "./components/features/auth/ForgotPassword";
 import VerifyOTP from "./components/features/auth/VerifyOTP";
 import ResetPassword from "./components/features/auth/ResetPassword";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   return (
     <Routes>
       <Route path="/register" element={<Register />} />
+      <Route
+        path="/verify-email"
+        element={<VerifyEmail />}
+      />
       <Route path="/login" element={<Login />} />
       <Route
         path="/forgot-password"

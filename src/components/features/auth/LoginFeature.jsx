@@ -1,15 +1,27 @@
+
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
-import { loginUser } from "@/api/authApi";
+import {
+    loginUser,
+    resendVerificationEmail
+} from "@/api/authApi";
 import { useAuth } from "@/context/AuthContext";
 
 function LoginFeature() {
 
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const successMessage = location.state?.message;
+
     const { login } = useAuth();
+
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const [resendLoading, setResendLoading] = useState(false);
+    const [resendMessage, setResendMessage] = useState("");
 
     const [formData, setFormData] = useState({
         email: "",
@@ -29,6 +41,7 @@ function LoginFeature() {
         e.preventDefault();
 
         setError("");
+        setResendMessage("");
 
         try {
             setLoading(true);
@@ -50,6 +63,30 @@ function LoginFeature() {
         }
     };
 
+    const handleResendVerification = async () => {
+        if (!formData.email.trim()) {
+            setResendMessage("Please enter your email address first.");
+            return;
+        }
+
+        try {
+            setResendLoading(true);
+            setResendMessage("");
+
+            const data = await resendVerificationEmail(formData.email);
+
+            setResendMessage(data.message);
+
+        } catch (error) {
+            setResendMessage(error.message);
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
+    const needsVerification =
+        error === "Please verify your email before logging in.";
+
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
             <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
@@ -64,11 +101,43 @@ function LoginFeature() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
+                    {successMessage && (
+                        <p className="rounded-lg bg-green-50 p-3 text-sm text-green-600">
+                            {successMessage}
+                        </p>
+                    )}
+
                     {error && (
                         <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
                             {error}
                         </p>
                     )}
+
+                    {needsVerification && (
+                        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                            <p className="text-sm text-blue-700">
+                                Haven't received your verification email?
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={handleResendVerification}
+                                disabled={resendLoading}
+                                className="mt-3 font-semibold text-blue-600 hover:underline disabled:opacity-50"
+                            >
+                                {resendLoading
+                                    ? "Sending..."
+                                    : "Resend Verification Email"}
+                            </button>
+
+                            {resendMessage && (
+                                <p className="mt-2 text-sm text-blue-700">
+                                    {resendMessage}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
                     <div>
                         <label className="mb-2 block text-sm font-medium text-gray-700">
                             Email Address
@@ -107,6 +176,7 @@ function LoginFeature() {
                                 required
                             />
                         </div>
+
                         <div className="flex justify-end">
                             <Link
                                 to="/forgot-password"

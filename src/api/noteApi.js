@@ -1,5 +1,7 @@
+import API_BASE_URL from "./apiConfig";
 
-const API_URL = "http://localhost:5000/api/notes";
+const API_URL = `${API_BASE_URL}/api/notes`;
+
 
 // Xử lý response từ backend
 async function handleResponse(response) {

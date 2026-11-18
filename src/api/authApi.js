@@ -1,5 +1,6 @@
-const API_URL = "http://localhost:5000/api/auth"
+import API_BASE_URL from "./apiConfig";
 
+const API_URL = `${API_BASE_URL}/api/auth`;
 //Xử lý response từ BE
 async function handleResponsee(response) {
     const data = await response.json().catch(() => null)

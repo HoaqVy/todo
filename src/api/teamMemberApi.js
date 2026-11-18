@@ -1,5 +1,7 @@
+import API_BASE_URL from "./apiConfig";
 
-const API_URL = "http://localhost:5000/api/team-members";
+const API_URL = `${API_BASE_URL}/api/team-members`;
+
 
 async function handleResponse(response) {
     const data = await response.json().catch(() => null);

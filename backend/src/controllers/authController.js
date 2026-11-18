@@ -472,6 +472,7 @@ export const verifyEmail = async (req, res) => {
 
 
 // RESEND VERIFICATION EMAIL
+
 export const resendVerificationEmail = async (req, res) => {
     try {
         const { email } = req.body;
@@ -488,7 +489,6 @@ export const resendVerificationEmail = async (req, res) => {
             email: normalizedEmail
         });
 
-        // Use the same response to avoid revealing account status
         const successMessage =
             "If your account requires verification, a new email will be sent.";
 
@@ -496,6 +496,49 @@ export const resendVerificationEmail = async (req, res) => {
             return res.status(200).json({
                 message: successMessage
             });
+        }
+
+        const now = new Date();
+
+        const cooldown = 60 * 1000;
+        const resendWindow = 60 * 60 * 1000;
+        const maxResend = 5;
+
+        // Check cooldown
+        if (
+            user.emailVerificationLastSentAt &&
+            now - user.emailVerificationLastSentAt < cooldown
+        ) {
+            const remainingSeconds = Math.ceil(
+                (cooldown -
+                    (now - user.emailVerificationLastSentAt)) / 1000
+            );
+
+            return res.status(429).json({
+                message: `Please wait ${remainingSeconds} seconds before requesting another email.`
+            });
+        }
+
+        // Reset the hourly window if expired
+        if (
+            !user.emailVerificationResendWindowStart ||
+            now - user.emailVerificationResendWindowStart >= resendWindow
+        ) {
+            user.emailVerificationResendWindowStart = now;
+            user.emailVerificationResendCount = 0;
+        }
+
+        // Check hourly limit
+        if (user.emailVerificationResendCount >= maxResend) {
+            return res.status(429).json({
+                message: "You have reached the maximum of 5 verification emails per hour. Please try again later."
+            });
+        }
+
+        const frontendUrl = process.env.FRONTEND_URL;
+
+        if (!frontendUrl) {
+            throw new Error("FRONTEND_URL is not configured.");
         }
 
         // Generate a new verification token
@@ -506,20 +549,13 @@ export const resendVerificationEmail = async (req, res) => {
             hashVerificationToken(verificationToken);
 
         user.emailVerificationExpires = new Date(
-            Date.now() + 24 * 60 * 60 * 1000
+            now.getTime() + 24 * 60 * 60 * 1000
         );
-
-        await user.save();
-
-        const frontendUrl = process.env.FRONTEND_URL;
-
-        if (!frontendUrl) {
-            throw new Error("FRONTEND_URL is not configured.");
-        }
 
         const verificationLink =
             `${frontendUrl}/verify-email?token=${verificationToken}`;
 
+        // Send email first
         await transporter.sendMail({
             from: process.env.SMTP_USER,
             to: normalizedEmail,
@@ -527,9 +563,7 @@ export const resendVerificationEmail = async (req, res) => {
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
                     <h2>Verify Your Email</h2>
-
                     <p>Hello ${user.name},</p>
-
                     <p>Please click the button below to verify your email address.</p>
 
                     <a
@@ -551,6 +585,12 @@ export const resendVerificationEmail = async (req, res) => {
             `
         });
 
+        // Update resend counters only after successful email delivery
+        user.emailVerificationLastSentAt = now;
+        user.emailVerificationResendCount += 1;
+
+        await user.save();
+
         return res.status(200).json({
             message: successMessage
         });
@@ -563,6 +603,7 @@ export const resendVerificationEmail = async (req, res) => {
         });
     }
 };
+
 
 
 // LOGIN

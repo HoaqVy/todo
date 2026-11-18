@@ -47,7 +47,21 @@ const userSchema = new mongoose.Schema(
         emailVerificationExpires: {
             type: Date,
             default: null
-        }
+        },
+        emailVerificationLastSentAt: {
+            type: Date,
+            default: null
+        },
+
+        emailVerificationResendCount: {
+            type: Number,
+            default: 0
+        },
+
+        emailVerificationResendWindowStart: {
+            type: Date,
+            default: null
+        },
     },
     {
         timestamps: true
